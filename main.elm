@@ -147,13 +147,12 @@ main =
       a b = b |> posKeyListTo2DList |> fromListListStateAtToElement
       view : GameState -> Element
       view gs = flow down [
-           a gs.board
---          , T.asText (selected p board)
---        , T.asText (possesOf P1 board)
---        , T.asText (movablePos board ((1,2), Just Giraffe P1))
---          , T.asText p
-         , T.asText gs
-         ]
+                 case gs.result of
+                   Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
+                   otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
+               , a gs.board
+               , T.asText gs
+                      ]
   in view <~ gameState
 
 -- そのPosが盤上かどうかを返す
