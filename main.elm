@@ -14,10 +14,9 @@ type alias Pos = (Int,Int) -- (x,y)
 type Player = P1 | P2
 type KomaType = Lion | Elephant | Giraffe | Chick
 type alias StateAt = Maybe (KomaType, Player)
--- type StateAt = Empty | Exist KomaType Player
 type Effect = NoEffect | Transparent
 type alias Board = List (Pos, StateAt, Effect)
-type GameResult = Unfinished | P1Win | P2Win | Draw
+type GameResult = Unfinished | Win Player | Draw
 type PlayState = Neutral | Selected
 type alias GameState = {
     board : Board
@@ -127,7 +126,7 @@ cancelSelect = L.map (\(p,s,e) -> (p,s, NoEffect))
 click : GameState -> Pos -> GameState
 click gs p = if | gs.playState == Neutral -> { gs | board <- selected p gs.board
                                                    , playState <- Selected }
-                | gs.playState == Selected -> { gs | turn <- changeTurn gs.turn
+                | gs.playState == Selected -> { gs | turn <- opponent gs.turn
                                                    , playState <- Neutral }
 
 initGameState : GameState
@@ -198,10 +197,11 @@ updateGameState pos gs =
         isMove : Bool
         isMove = (gs.playState == Selected) && (L.member pos gs.movablePositions)
     in if | isMove -> { gs | playState <- Neutral
+                        , result <- if getStateAt gs.board pos == Just (Lion ,opponent gs.turn) then Win gs.turn else Unfinished
                         , board <- updateBoard gs.board [
                                      (gs.clickedPosition, Nothing, NoEffect)
                                    , (pos, gs.clickedStateAt, NoEffect)]
-                        , turn <- (changeTurn gs.turn)
+                        , turn <- (opponent gs.turn)
                         , clickedPosition <- pos
                         , movablePositions <- [] }
           | isSelect -> { gs | board <- selected pos gs.board
@@ -215,9 +215,9 @@ updateGameState pos gs =
                          , clickedPosition <- pos
                          , movablePositions <- [] }
 
-
-changeTurn : Player -> Player
-changeTurn p = if p == P1 then P2 else P1
+-- 対戦相手
+opponent : Player -> Player
+opponent p = if p == P1 then P2 else P1
 
 boardToDict : Board -> D.Dict (Int, Int) (StateAt, Effect)
 boardToDict b = L.map (\(p,s,e) -> (p,(s,e))) b |> D.fromList
