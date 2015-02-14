@@ -3,6 +3,8 @@ import List ((::))
 import Dict as D
 import Array as A
 import Text as T
+import Maybe
+import Debug
 import Graphics.Element (..)
 import Graphics.Collage as GC
 import Graphics.Input (clickable)
@@ -24,7 +26,7 @@ type alias GameState = {
   , playState : PlayState
   , result : GameResult
   , clickedStateAt : StateAt
-  , clickedPosition : Pos
+  , clickedPosition : Maybe Pos
   , movablePositions : List Pos
   }
 
@@ -135,7 +137,7 @@ initGameState = { board = initBoard
                  , playState = Neutral
                  , result = Unfinished
                  , clickedStateAt = Nothing
-                 , clickedPosition = (0,4)
+                 , clickedPosition = Nothing
                  , movablePositions = []}
 
 gameState : Signal GameState
@@ -198,20 +200,20 @@ updateGameState pos gs =
     in if | isMove -> { gs | playState <- Neutral
                         , result <- if getStateAt gs.board pos == Just (Lion ,opponent gs.turn) then Win gs.turn else Unfinished
                         , board <- updateBoard gs.board [
-                                     (gs.clickedPosition, Nothing, NoEffect)
+                                     (justOrCrash "xxx" gs.clickedPosition, Nothing, NoEffect)
                                    , (pos, gs.clickedStateAt, NoEffect)]
                         , turn <- (opponent gs.turn)
-                        , clickedPosition <- pos
+                        , clickedPosition <- Just pos
                         , movablePositions <- [] }
           | isSelect -> { gs | board <- selected pos gs.board
                       , playState <- Selected
                       , clickedStateAt <- getStateAt gs.board pos
-                      , clickedPosition <- pos
+                      , clickedPosition <- Just pos
                       , movablePositions <- mPoss }
           | otherwise -> { gs | board <- cancelSelect gs.board
                          , playState <- Neutral
                          , clickedStateAt <- Nothing
-                         , clickedPosition <- pos
+                         , clickedPosition <- Just pos
                          , movablePositions <- [] }
 
 -- 対戦相手
@@ -230,3 +232,8 @@ updateBoard b pses =
       boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (p,s,e))
 
   in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b pses
+
+justOrCrash : String -> Maybe a -> a
+justOrCrash errStr m = case m of
+  Just a -> a
+  Nothing -> Debug.crash errStr
