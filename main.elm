@@ -9,7 +9,6 @@ import Graphics.Element (..)
 import Graphics.Collage as GC
 import Graphics.Input (clickable)
 import Color (..)
-import Mouse
 import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp)
 
 type alias Pos = (Int,Int) -- (x,y)
@@ -56,7 +55,7 @@ show : (Pos, StateAt, Effect) -> Element
 show (p, s, e) =
   let effect : Element -> Element
       effect = if | e == Transparent -> opacity 0.5
-                  | otherwise -> identity
+                  | otherwise -> opacity 1.0
 
       showKoma : KomaType -> Player -> Element
       showKoma kt player = komaImg kt player |> fittedImage komaSize.x komaSize.y
@@ -75,7 +74,6 @@ show (p, s, e) =
 
       emptyImg : Element
       emptyImg = spacer komaSize.x komaSize.y |> color white
---       emptyImg = fittedImage komaSize.x komaSize.y "img/y5.png"
 
   in clickable (send posMessage p) <| effect <| case s of
        Nothing -> emptyImg
@@ -110,27 +108,19 @@ getStateAt b p = getAt b p |> (\(_,s,_) -> s)
 -- 指定したPosの駒が動かせる場合、その移動可能範囲にエフェクトをつける
 selected : Pos -> Board -> Board
 selected p' b =
-  let a : (Pos, StateAt, Effect)
-      a = getAt b p'
-      pos = (\(p,_,_) -> p) a
-      st = (\(_,s,_) -> s) a
+  let (pos, st, _) = getAt b p'
+      player = justOrCrash "yyy" st |> snd
       movablePos' : List Pos
       movablePos' = movablePos b (p', st)
       effectedPoss : Pos -> Board -> List Pos
       effectedPoss p' b = pos :: movablePos'
-  in if | (isOwn P1 b p') && (not (L.isEmpty movablePos'))
+  in if | (isOwn player b p') && (not (L.isEmpty movablePos'))
             -> L.map (\(p,s,e) -> if L.member p (effectedPoss p' b) then (p,s,Transparent) else (p,s,e)) b
         | otherwise -> b
 
 -- 選択状態を解除する
 cancelSelect : Board -> Board
 cancelSelect = L.map (\(p,s,e) -> (p,s, NoEffect))
-
-click : GameState -> Pos -> GameState
-click gs p = if | gs.playState == Neutral -> { gs | board <- selected p gs.board
-                                                   , playState <- Selected }
-                | gs.playState == Selected -> { gs | turn <- opponent gs.turn
-                                                   , playState <- Neutral }
 
 initGameState : GameState
 initGameState = { board = initBoard
@@ -153,7 +143,7 @@ main =
                  case gs.result of
                    Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
                    otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
-               , a gs.board |> color red
+               , a gs.board |> color green
                , T.asText gs
                       ]
   in view <~ gameState
@@ -200,7 +190,7 @@ updateGameState pos gs =
         isMove = (gs.playState == Selected) && (L.member pos gs.movablePositions)
     in if | isMove -> { gs | playState <- Neutral
                         , result <- if getStateAt gs.board pos == Just (Lion ,opponent gs.turn) then Win gs.turn else Unfinished
-                        , board <- updateBoard gs.board [
+                        , board <- resetEffect <| updateBoard gs.board [
                                      (justOrCrash "xxx" gs.clickedPosition, Nothing, NoEffect)
                                    , (pos, gs.clickedStateAt, NoEffect)]
                         , turn <- (opponent gs.turn)
@@ -233,6 +223,9 @@ updateBoard b pses =
       boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (p,s,e))
 
   in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b pses
+
+resetEffect : Board -> Board
+resetEffect = L.map (\(p,s,e) -> (p,s,NoEffect))
 
 justOrCrash : String -> Maybe a -> a
 justOrCrash errStr m = case m of
