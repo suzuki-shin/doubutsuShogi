@@ -219,14 +219,15 @@ updateGameState pos gs =
 changeTurn : Player -> Player
 changeTurn p = if p == P1 then P2 else P1
 
-boardToDict : Board -> D.Dict (Int, Int) (StateAt, Effect)
-boardToDict b = L.map (\(p,s,e) -> (p,(s,e))) b |> D.fromList
-
-boardFromDict : D.Dict (Int, Int) (StateAt, Effect) -> Board
-boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (p,s,e))
-
 updateBoard : Board -> List (Pos, StateAt, Effect) -> Board
 updateBoard b pses =
   let updateOnePos : Board -> (Pos, StateAt, Effect) -> Board
       updateOnePos b (p,s,e) = boardToDict b |> D.update p (\_ -> Just (s, e)) |> boardFromDict
+
+      boardToDict : Board -> D.Dict (Int, Int) (StateAt, Effect)
+      boardToDict b = L.map (\(p,s,e) -> (p,(s,e))) b |> D.fromList
+
+      boardFromDict : D.Dict (Int, Int) (StateAt, Effect) -> Board
+      boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (p,s,e))
+
   in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b pses
