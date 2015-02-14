@@ -74,7 +74,8 @@ show (p, s, e) =
           in "img/" ++ ktImg ++ plImg ++ ".gif"
 
       emptyImg : Element
-      emptyImg = fittedImage komaSize.x komaSize.y "img/y5.png"
+      emptyImg = spacer komaSize.x komaSize.y |> color white
+--       emptyImg = fittedImage komaSize.x komaSize.y "img/y5.png"
 
   in clickable (send posMessage p) <| effect <| case s of
        Nothing -> emptyImg
@@ -152,7 +153,7 @@ main =
                  case gs.result of
                    Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
                    otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
-               , a gs.board
+               , a gs.board |> color red
                , T.asText gs
                       ]
   in view <~ gameState
