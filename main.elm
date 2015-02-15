@@ -27,6 +27,7 @@ type alias GameState = {
   , clickedStateAt : StateAt
   , clickedPosition : Maybe Pos
   , movablePositions : List Pos
+  , mochiGoma : List (KomaType, Player)
   }
 
 boardSize = {x = 3, y = 4}
@@ -57,28 +58,28 @@ show (p, s, e) =
       effect = if | e == Transparent -> opacity 0.5
                   | otherwise -> opacity 1.0
 
-      showKoma : KomaType -> Player -> Element
-      showKoma kt player = komaImg kt player |> fittedImage komaSize.x komaSize.y
-
-      komaImg : KomaType -> Player -> String
-      komaImg kt player =
-          let ktImg = case kt of
-                        Lion     -> "lion"
-                        Elephant -> "zou"
-                        Giraffe  -> "kirin"
-                        Chick    -> "hiyoko"
-              plImg = case player of
-                        P1 -> "A"
-                        P2 -> "B"
-          in "img/" ++ ktImg ++ plImg ++ ".gif"
-
-      emptyImg : Element
-      emptyImg = spacer komaSize.x komaSize.y |> color white
-
   in clickable (send posMessage p) <| effect <| case s of
        Nothing -> emptyImg
        Just (kt, player) -> showKoma kt player
 
+
+showKoma : KomaType -> Player -> Element
+showKoma kt player = komaImg kt player |> fittedImage komaSize.x komaSize.y
+
+komaImg : KomaType -> Player -> String
+komaImg kt player =
+    let ktImg = case kt of
+                  Lion     -> "lion"
+                  Elephant -> "zou"
+                  Giraffe  -> "kirin"
+                  Chick    -> "hiyoko"
+        plImg = case player of
+                  P1 -> "A"
+                  P2 -> "B"
+    in "img/" ++ ktImg ++ plImg ++ ".gif"
+
+emptyImg : Element
+emptyImg = spacer komaSize.x komaSize.y |> color white
 
 -- [((0,0), 'A'), ((1,0), 'B'), ((0,1), 'C'), ((1,1), 'D')] みたいな "Posが1要素目の2要素タプルのリスト" データを
 -- [ ['A','B']
@@ -129,7 +130,8 @@ initGameState = { board = initBoard
                  , result = Unfinished
                  , clickedStateAt = Nothing
                  , clickedPosition = Nothing
-                 , movablePositions = []}
+                 , movablePositions = []
+                 , mochiGoma = [] }
 
 gameState : Signal GameState
 gameState = foldp updateGameState initGameState (subscribe posMessage)
@@ -138,14 +140,25 @@ main =
   let
       a : Board -> Element
       a b = b |> posKeyListTo2DList |> fromListListStateAtToElement
+      komaDai : List (KomaType, Player) -> Element
+      komaDai mochiG =
+          let p1KomaDai = L.filter (\(_, p) -> p == P1) mochiG
+              p2KomaDai = L.filter (\(_, p) -> p == P2) mochiG
+          in flow down [
+                    flow right <| L.map (\(kt, p) -> showKoma kt p) p2KomaDai
+                  , flow right <| L.map (\(kt, p) -> showKoma kt p) p1KomaDai
+                 ]
       view : GameState -> Element
-      view gs = flow down [
-                 case gs.result of
-                   Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
-                   otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
-               , a gs.board |> color green
-               , T.asText gs
-                      ]
+      view gs = flow right [
+                 flow down [
+                   case gs.result of
+                     Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
+                     otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
+                 , a gs.board |> color green
+                 , T.asText gs
+                      ] |> width (boardSize.x * komaSize.x)
+                , komaDai gs.mochiGoma
+                ]
   in view <~ gameState
 
 -- そのPosが盤上かどうかを返す
@@ -188,14 +201,22 @@ updateGameState pos gs =
         isSelect = (gs.playState == Neutral) && (isOwn gs.turn gs.board pos)
         isMove : Bool
         isMove = (gs.playState == Selected) && (L.member pos gs.movablePositions)
+        opponent_ : Player
+        opponent_ = opponent gs.turn
+        mochiGoma_ : List (KomaType, Player)
+        mochiGoma_ = case getStateAt gs.board pos of
+                       Just (kt, opponent_) -> (kt, gs.turn) :: gs.mochiGoma
+                       otherwise -> gs.mochiGoma
     in if | isMove -> { gs | playState <- Neutral
-                        , result <- if getStateAt gs.board pos == Just (Lion ,opponent gs.turn) then Win gs.turn else Unfinished
+                        , result <- if getStateAt gs.board pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
                         , board <- resetEffect <| updateBoard gs.board [
                                      (justOrCrash "xxx" gs.clickedPosition, Nothing, NoEffect)
                                    , (pos, gs.clickedStateAt, NoEffect)]
                         , turn <- (opponent gs.turn)
                         , clickedPosition <- Just pos
-                        , movablePositions <- [] }
+                        , movablePositions <- []
+                        , mochiGoma <- mochiGoma_
+                      }
           | isSelect -> { gs | board <- selected pos gs.board
                       , playState <- Selected
                       , clickedStateAt <- getStateAt gs.board pos
