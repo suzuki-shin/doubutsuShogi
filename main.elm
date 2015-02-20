@@ -11,7 +11,7 @@ import Graphics.Input (clickable)
 import Color (..)
 import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp)
 
-type alias Pos = (Int,Int) -- (x,y)
+type Pos = OnBoard (Int,Int) | InHand Int
 type Player = P1 | P2
 type KomaType = Lion | Elephant | Giraffe | Chick
 type alias StateAt = Maybe (KomaType, Player)
@@ -35,22 +35,24 @@ komaSize = {x = 100, y = 100}
 
 initBoard : Board
 initBoard = [
-    ((0,0), Just (Elephant, P2), NoEffect)
-  , ((1,0), Just (Lion, P2), NoEffect)
-  , ((2,0), Just (Giraffe, P2), NoEffect)
-  , ((0,1), Nothing, NoEffect)
-  , ((1,1), Just (Chick, P2), NoEffect)
-  , ((2,1), Nothing, NoEffect)
-  , ((0,2), Nothing, NoEffect)
-  , ((1,2), Just (Chick, P1), NoEffect)
-  , ((2,2), Nothing, NoEffect)
-  , ((0,3), Just (Elephant, P1), NoEffect)
-  , ((1,3), Just (Lion, P1), NoEffect)
-  , ((2,3), Just (Giraffe, P1), NoEffect)
+    (OnBoard (0,0), Just (Elephant, P2), NoEffect)
+  , (OnBoard (1,0), Just (Lion, P2), NoEffect)
+  , (OnBoard (2,0), Just (Giraffe, P2), NoEffect)
+  , (OnBoard (0,1), Nothing, NoEffect)
+  , (OnBoard (1,1), Just (Chick, P2), NoEffect)
+  , (OnBoard (2,1), Nothing, NoEffect)
+  , (OnBoard (0,2), Nothing, NoEffect)
+  , (OnBoard (1,2), Just (Chick, P1), NoEffect)
+  , (OnBoard (2,2), Nothing, NoEffect)
+  , (OnBoard (0,3), Just (Elephant, P1), NoEffect)
+  , (OnBoard (1,3), Just (Lion, P1), NoEffect)
+  , (OnBoard (2,3), Just (Giraffe, P1), NoEffect)
   ]
 
-posMessage : Channel Pos
-posMessage = channel (0,0)
+clickMessage : Channel Pos
+clickMessage = channel <| OnBoard (0,0)
+
+
 
 show : (Pos, StateAt, Effect) -> Element
 show (p, s, e) =
@@ -58,7 +60,7 @@ show (p, s, e) =
       effect = if | e == Transparent -> opacity 0.5
                   | otherwise -> opacity 1.0
 
-  in clickable (send posMessage p) <| effect <| case s of
+  in clickable (send clickMessage p) <| effect <| case s of
        Nothing -> emptyImg
        Just (kt, player) -> showKoma kt player
 
@@ -89,7 +91,9 @@ posKeyListTo2DList tuples =
   let yMax : Int
       yMax = boardSize.y - 1
       yiList : Int -> List (Pos, StateAt, Effect) -> List (Pos, StateAt, Effect)
-      yiList i = L.filter (\((_,y),_,_) -> y == i)
+      yiList i = L.filter (\(p,_,_) -> case p of
+                                         OnBoard (_,y) -> y == i
+                                         InHand n -> False)
       tpl2nd3rd (_,b,c) = (b,c)
   in L.map (\yi -> (yiList yi) tuples ) [0..yMax]
 
@@ -134,7 +138,7 @@ initGameState = { board = initBoard
                  , mochiGoma = [] }
 
 gameState : Signal GameState
-gameState = foldp updateGameState initGameState (subscribe posMessage)
+gameState = foldp updateGameState initGameState (subscribe clickMessage)
 
 main =
   let
@@ -145,8 +149,8 @@ main =
           let p1KomaDai = L.filter (\(_, p) -> p == P1) mochiG
               p2KomaDai = L.filter (\(_, p) -> p == P2) mochiG
           in flow down [
-                    flow right <| L.map (\(kt, p) -> showKoma kt p) p2KomaDai
-                  , flow right <| L.map (\(kt, p) -> showKoma kt p) p1KomaDai
+                    flow right <| L.map (\(kt, p) -> showKoma kt p |> clickable (send clickMessage (InHand 1))) p2KomaDai
+                  , flow right <| L.map (\(kt, p) -> showKoma kt p |> clickable (send clickMessage (InHand 2))) p1KomaDai
                  ]
       view : GameState -> Element
       view gs = flow right [
@@ -161,30 +165,43 @@ main =
                 ]
   in view <~ gameState
 
--- そのPosが盤上かどうかを返す
-isOnBoard : Board -> Pos -> Bool
-isOnBoard b (x,y) =   (0 <= x) && (x <= boardSize.x - 1)
-                    && (0 <= y) && (y <= boardSize.y - 1)
+-- その座標が盤上かどうかを返す
+isOnBoard : Board -> (Int,Int) -> Bool
+isOnBoard b (x,y) = (0 <= x) && (x <= boardSize.x - 1) && (0 <= y) && (y <= boardSize.y - 1)
 
 
 -- 指定した駒の動けるマスのPosのリストを返す
 movablePos : Board -> (Pos, StateAt) -> List Pos
-movablePos b ((x,y), s) =
-  let filterFunc : Player -> Pos -> Bool
-      filterFunc pl pos = (isOnBoard b pos) && not (L.member pos (possesOf pl b))
+movablePos b (p,s) = case p of
+                       OnBoard p' -> movablePosOnBoard b (p', s)
+                       InHand n -> movablePosInHand b
+
+movablePosInHand : Board -> List Pos
+movablePosInHand b = emptyPoss b
+
+movablePosOnBoard : Board -> ((Int,Int), StateAt) -> List Pos
+movablePosOnBoard b ((x,y), s) =
+  let filterFunc : Player -> (Int,Int) -> Bool
+      filterFunc pl xy = (isOnBoard b xy) && not (L.member (OnBoard xy) (possesOf pl b))
   in case s of
-       Nothing -> [(x,y)]
+       Nothing -> []
        Just (kt, pl) -> case (kt, pl) of
-         (Lion, p) -> [(x-1,y),(x,y-1),(x+1,y),(x,y+1),(x+1,y+1),(x+1,y-1),(x-1,y+1),(x-1,y-1)] |> L.filter (filterFunc p)
-         (Elephant, p) -> [(x+1,y+1),(x-1,y+1),(x-1,y-1),(x+1,y-1)] |> L.filter (filterFunc p)
-         (Giraffe, p) -> [(x,y+1),(x,y-1),(x+1,y),(x-1,y)] |> L.filter (filterFunc p)
-         (Chick, p) -> [(x,if p == P1 then y-1 else y+1)] |> L.filter (filterFunc p)
+         (Lion, p) -> [(x-1,y),(x,y-1),(x+1,y),(x,y+1),(x+1,y+1),(x+1,y-1),(x-1,y+1),(x-1,y-1)] |> L.filter (filterFunc p) |> L.map OnBoard
+         (Elephant, p) -> [(x+1,y+1),(x-1,y+1),(x-1,y-1),(x+1,y-1)] |> L.filter (filterFunc p) |> L.map OnBoard
+         (Giraffe, p) -> [(x,y+1),(x,y-1),(x+1,y),(x-1,y)] |> L.filter (filterFunc p) |> L.map OnBoard
+         (Chick, p) -> [(x,if p == P1 then y-1 else y+1)] |> L.filter (filterFunc p) |> L.map OnBoard
 
 -- 指定したプレイヤーの駒が占めているPosのリストを返す
 possesOf : Player -> Board -> List Pos
 possesOf player = L.filter (\(_, stateAt, _) -> case stateAt of
                                                   Just (_, p) -> p == player
                                                   otherwise -> False) >> L.map (\(a,_,_) -> a)
+
+-- 盤上でコマが置かれていないPosのリストを返す
+emptyPoss : Board -> List Pos
+emptyPoss = L.filter (\(p,s,_) -> s == Nothing && case p of
+                                                      OnBoard _ -> True
+                                                      otherwise -> False) >> L.map (\(p,_,_) -> p)
 
 -- 指定したPosに自分の駒があるかどうかを返す
 isOwn : Player -> Board -> Pos -> Bool
@@ -234,14 +251,20 @@ opponent p = if p == P1 then P2 else P1
 
 updateBoard : Board -> List (Pos, StateAt, Effect) -> Board
 updateBoard b pses =
-  let updateOnePos : Board -> (Pos, StateAt, Effect) -> Board
-      updateOnePos b (p,s,e) = boardToDict b |> D.update p (\_ -> Just (s, e)) |> boardFromDict
+  let onBoardFilter : Board -> Board
+      onBoardFilter = L.filter (\(p,_,_) -> case p of
+                                           OnBoard _ -> True
+                                           InHand _ -> False)
+      xy : Pos -> (Int,Int)
+      xy p = case p of OnBoard xy -> xy
+      updateOnePos : Board -> (Pos, StateAt, Effect) -> Board
+      updateOnePos b (p,s,e) = onBoardFilter b |> boardToDict |> D.update (xy p) (\_ -> Just (s, e)) |> boardFromDict
 
       boardToDict : Board -> D.Dict (Int, Int) (StateAt, Effect)
-      boardToDict b = L.map (\(p,s,e) -> (p,(s,e))) b |> D.fromList
+      boardToDict b = onBoardFilter b |> L.map (\(p,s,e) -> ((xy p),(s,e))) |> D.fromList
 
       boardFromDict : D.Dict (Int, Int) (StateAt, Effect) -> Board
-      boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (p,s,e))
+      boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (OnBoard p,s,e))
 
   in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b pses
 
