@@ -108,7 +108,7 @@ getAt b mochiG p =
               [a] -> a
               otherwise -> (p, Nothing, NoEffect)
         getAtInHand : List (KomaType, Player) -> Int -> StateAt
-        getAtInHand mochiG n = A.get (n-1) (A.fromList mochiG)
+        getAtInHand mochiG n = A.get n (A.fromList mochiG)
     in case p of
          OnBoard _ -> getAtOnBoard b p
          InHand n -> getAtInHand mochiG n |> (\stAt -> (p, stAt, NoEffect))
@@ -153,11 +153,11 @@ main =
       a b = b |> posKeyListTo2DList |> fromListListStateAtToElement
       komaDai : List (KomaType, Player) -> Element
       komaDai mochiG =
-          let p1KomaDai = L.filter (\(_, p) -> p == P1) mochiG
-              p2KomaDai = L.filter (\(_, p) -> p == P2) mochiG
+          let p1KomaDai = L.filter (\(i, (_, p)) -> p == P1) (L.map2 (,) [0..7] mochiG)
+              p2KomaDai = L.filter (\(i, (_, p)) -> p == P2) (L.map2 (,) [0..7] mochiG)
           in flow down [
-                    flow right <| L.map (\(kt, p) -> showKoma kt p |> clickable (send clickMessage (InHand 1))) p2KomaDai
-                  , flow right <| L.map (\(kt, p) -> showKoma kt p |> clickable (send clickMessage (InHand 2))) p1KomaDai
+                    flow right <| L.map (\(i, (kt, p)) -> showKoma kt p |> clickable (send clickMessage (InHand i))) p2KomaDai
+                  , flow right <| L.map (\(i, (kt, p)) -> showKoma kt p |> clickable (send clickMessage (InHand i))) p1KomaDai
                  ]
       view : GameState -> Element
       view gs = flow right [
@@ -206,7 +206,7 @@ possesOf player = L.filter (\(_, stateAt, _) -> case stateAt of
 
 -- 指定したプレイヤーの駒が占めている持ち駒のPosのリストを返す
 possesOfInHand : Player -> List (KomaType, Player) -> List Int
-possesOfInHand player mochiGoma = L.map2 (,) [1..8] mochiGoma |> L.filter (\(n, (_,pl)) -> pl == player) |> L.map fst
+possesOfInHand player mochiGoma = L.map2 (,) [0..7] mochiGoma |> L.filter (\(n, (_,pl)) -> pl == player) |> L.map fst
 
 -- 盤上でコマが置かれていないPosのリストを返す
 emptyPoss : Board -> List Pos
