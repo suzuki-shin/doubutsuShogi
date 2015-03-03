@@ -104,7 +104,6 @@ fromListListStateAtToElement : List (List (Pos, StateAt, Effect)) -> Element
 fromListListStateAtToElement = L.map (\cel -> flow right (L.map show cel)) >> flow down
 
 -- 指定したマスの情報を返す
--- getAt : Board -> List (KomaType, Player) -> Pos -> (Pos, StateAt, Effect)
 getAt : Board -> KomaDai -> KomaDai -> Pos -> (Pos, StateAt, Effect)
 getAt b mochiG1 mochiG2 p =
     let getAtOnBoard : Board -> Pos -> (Pos, StateAt, Effect)
