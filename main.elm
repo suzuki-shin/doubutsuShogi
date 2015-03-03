@@ -2,6 +2,7 @@ import List as L
 import List ((::))
 import Dict as D
 import Array as A
+import Array (Array)
 import Text as T
 import Maybe
 import Debug
@@ -11,12 +12,13 @@ import Graphics.Input (clickable)
 import Color (..)
 import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp)
 
-type Pos = OnBoard (Int,Int) | InHand Int
+type Pos = OnBoard (Int,Int) | InHand Player Int
 type Player = P1 | P2
 type KomaType = Lion | Elephant | Giraffe | Chick
 type alias StateAt = Maybe (KomaType, Player)
 type Effect = NoEffect | Transparent
 type alias Board = List (Pos, StateAt, Effect)
+type alias KomaDai = Array KomaType
 type GameResult = Unfinished | Win Player | Draw
 type PlayState = Neutral | Selected
 type alias GameState = {
@@ -27,7 +29,9 @@ type alias GameState = {
   , clickedStateAt : StateAt
   , clickedPosition : Maybe Pos
   , movablePositions : List Pos
-  , mochiGoma : List (KomaType, Player)
+  , mochiGoma1 : KomaDai
+  , mochiGoma2 : KomaDai
+--   , mochiGoma : List (KomaType, Player)
   }
 
 boardSize = {x = 3, y = 4}
@@ -93,7 +97,7 @@ posKeyListTo2DList tuples =
       yiList : Int -> List (Pos, StateAt, Effect) -> List (Pos, StateAt, Effect)
       yiList i = L.filter (\(p,_,_) -> case p of
                                          OnBoard (_,y) -> y == i
-                                         InHand n -> False)
+                                         InHand _ _ -> False)
       tpl2nd3rd (_,b,c) = (b,c)
   in L.map (\yi -> (yiList yi) tuples ) [0..yMax]
 
@@ -101,32 +105,37 @@ fromListListStateAtToElement : List (List (Pos, StateAt, Effect)) -> Element
 fromListListStateAtToElement = L.map (\cel -> flow right (L.map show cel)) >> flow down
 
 -- 指定したマスの情報を返す
-getAt : Board -> List (KomaType, Player) -> Pos -> (Pos, StateAt, Effect)
-getAt b mochiG p =
+-- getAt : Board -> List (KomaType, Player) -> Pos -> (Pos, StateAt, Effect)
+getAt : Board -> KomaDai -> KomaDai -> Pos -> (Pos, StateAt, Effect)
+getAt b mochiG1 mochiG2 p =
     let getAtOnBoard : Board -> Pos -> (Pos, StateAt, Effect)
         getAtOnBoard b p = case L.filter (\(p',_,_) -> p' == p) b of
               [a] -> a
               otherwise -> (p, Nothing, NoEffect)
-        getAtInHand : List (KomaType, Player) -> Int -> StateAt
-        getAtInHand mochiG n = A.get n (A.fromList mochiG)
+        getAtInHand : KomaDai -> Player -> Int -> StateAt
+--         getAtInHand : List (KomaType, Player) -> Int -> StateAt
+        getAtInHand mochiG player n = case A.get n mochiG of
+                                        Just mG -> Just (mG, player)
+                                        Nothing -> Nothing
     in case p of
          OnBoard _ -> getAtOnBoard b p
-         InHand n -> getAtInHand mochiG n |> (\stAt -> (p, stAt, NoEffect))
+         InHand player n -> getAtInHand (if player == P1 then mochiG1 else mochiG2) player n |> (\stAt -> (p, stAt, NoEffect))
 
-getStateAt : Board -> List (KomaType, Player) -> Pos -> StateAt
-getStateAt b mochiG p = getAt b mochiG p |> (\(_,s,_) -> s)
+-- getStateAt : Board -> List (KomaType, Player) -> Pos -> StateAt
+getStateAt : Board -> KomaDai -> KomaDai -> Pos -> StateAt
+getStateAt b mochiG1 mochiG2 p = getAt b mochiG1 mochiG2 p |> (\(_,s,_) -> s)
 
 -- 指定したPosの駒が動かせる場合、その移動可能範囲にエフェクトをつける
 -- selected : Pos -> Board -> List (KomaType, Player) -> Board
 selected : Pos -> GameState -> Board
 selected p' gs =
-  let (pos, st, _) = getAt gs.board gs.mochiGoma p'
+  let (pos, st, _) = getAt gs.board gs.mochiGoma1 gs.mochiGoma2 p'
       player = justOrCrash "yyy" st |> snd
       movablePos' : List Pos
       movablePos' = movablePos gs.board (p', st)
       effectedPoss : Pos -> Board -> List Pos
       effectedPoss p' b = pos :: movablePos'
-  in if | (isOwn player gs.board gs.mochiGoma p') && (not (L.isEmpty movablePos'))
+  in if | (isOwn player gs.board gs.mochiGoma1 gs.mochiGoma2 p') && (not (L.isEmpty movablePos'))
             -> L.map (\(p,s,e) -> if L.member p (effectedPoss p' gs.board) then (p,s,Transparent) else (p,s,e)) gs.board
         | otherwise -> gs.board
 
@@ -142,7 +151,8 @@ initGameState = { board = initBoard
                  , clickedStateAt = Nothing
                  , clickedPosition = Nothing
                  , movablePositions = []
-                 , mochiGoma = [] }
+                 , mochiGoma1 = A.empty
+                 , mochiGoma2 = A.empty }
 
 gameState : Signal GameState
 gameState = foldp updateGameState initGameState (subscribe clickMessage)
@@ -151,13 +161,14 @@ main =
   let
       a : Board -> Element
       a b = b |> posKeyListTo2DList |> fromListListStateAtToElement
-      komaDai : List (KomaType, Player) -> Element
-      komaDai mochiG =
-          let p1KomaDai = L.filter (\(i, (_, p)) -> p == P1) (L.map2 (,) [0..7] mochiG)
-              p2KomaDai = L.filter (\(i, (_, p)) -> p == P2) (L.map2 (,) [0..7] mochiG)
-          in flow down [
-                    flow right <| L.map (\(i, (kt, p)) -> showKoma kt p |> clickable (send clickMessage (InHand i))) p2KomaDai
-                  , flow right <| L.map (\(i, (kt, p)) -> showKoma kt p |> clickable (send clickMessage (InHand i))) p1KomaDai
+--       komaDai : List (KomaType, Player) -> Element
+      toClickable : Pos -> Element -> Element
+      toClickable pos = clickable (send clickMessage pos)
+      komaDai : KomaDai -> KomaDai -> Element
+      komaDai mochiG1 mochiG2 =
+          flow down [
+                    mochiG2 |> A.toIndexedList |> L.map (\(i, kt) -> toClickable (InHand P2 i) (showKoma kt P2)) |> flow right
+                  , mochiG1 |> A.toIndexedList |> L.map (\(i, kt) -> toClickable (InHand P1 i) (showKoma kt P1)) |> flow right
                  ]
       view : GameState -> Element
       view gs = flow right [
@@ -168,7 +179,7 @@ main =
                  , a gs.board |> color green
                  , T.asText gs
                       ] |> width (boardSize.x * komaSize.x)
-                , komaDai gs.mochiGoma
+                , komaDai gs.mochiGoma1 gs.mochiGoma2
                 ]
   in view <~ gameState
 
@@ -181,7 +192,7 @@ isOnBoard b (x,y) = (0 <= x) && (x <= boardSize.x - 1) && (0 <= y) && (y <= boar
 movablePos : Board -> (Pos, StateAt) -> List Pos
 movablePos b (p,s) = case p of
                        OnBoard p' -> movablePosOnBoard b (p', s)
-                       InHand n -> movablePosInHand b
+                       InHand _ n -> movablePosInHand b
 
 movablePosInHand : Board -> List Pos
 movablePosInHand b = emptyPoss b
@@ -205,8 +216,10 @@ possesOf player = L.filter (\(_, stateAt, _) -> case stateAt of
                                                   otherwise -> False) >> L.map (\(a,_,_) -> a)
 
 -- 指定したプレイヤーの駒が占めている持ち駒のPosのリストを返す
-possesOfInHand : Player -> List (KomaType, Player) -> List Int
-possesOfInHand player mochiGoma = L.map2 (,) [0..7] mochiGoma |> L.filter (\(n, (_,pl)) -> pl == player) |> L.map fst
+-- possesOfInHand : Player -> List (KomaType, Player) -> List Int
+-- possesOfInHand : Player -> KomaDai -> List Int
+-- possesOfInHand player mochiGoma = L.map2 (,) [0..7] (A.toList mochiGoma) |> L.filter (\(n, (_,pl)) -> pl == player) |> L.map fst
+-- possesOfInHand player mochiGoma = L.map2 (,) [0..7] mochiGoma |> L.filter (\(n, (_,pl)) -> pl == player) |> L.map fst
 
 -- 盤上でコマが置かれていないPosのリストを返す
 emptyPoss : Board -> List Pos
@@ -215,49 +228,54 @@ emptyPoss = L.filter (\(p,s,_) -> s == Nothing && case p of
                                                       otherwise -> False) >> L.map (\(p,_,_) -> p)
 
 -- 指定したPosに自分の駒があるかどうかを返す
-isOwn : Player -> Board -> List (KomaType, Player) -> Pos -> Bool
-isOwn player board mochiGoma pos = case pos of
+-- isOwn : Player -> Board -> List (KomaType, Player) -> Pos -> Bool
+isOwn : Player -> Board -> KomaDai -> KomaDai -> Pos -> Bool
+isOwn player board mochiGoma1 mochiGoma2 pos = case pos of
   OnBoard xy -> L.member pos (possesOf player board)
 --   InHand n -> L.member n (possesOfInHand player mochiGoma) |> Debug.log "isOwn InHand"
-  InHand n ->
+  InHand player n ->
       let a = Debug.log "InHand n" n
           b = Debug.log "InHand player" player
-      in L.member n (possesOfInHand player mochiGoma) -- |> Debug.log "isOwn InHand"
+      in L.member n (L.map (\(i,_) -> i) (A.toIndexedList (if player == P1 then mochiGoma1 else mochiGoma2))) -- |> Debug.log "isOwn InHand"
+--       in L.member n (possesOfInHand player (if player == P1 then mochiGoma1 else mochiGoma2)) -- |> Debug.log "isOwn InHand"
 
 
 updateGameState : Pos -> GameState -> GameState
 updateGameState pos gs =
     let stAt : StateAt
-        stAt = getAt (gs.board) (gs.mochiGoma) pos |> (\(_,s,_) -> s)
+        stAt = getAt (gs.board) (gs.mochiGoma1) (gs.mochiGoma2) pos |> (\(_,s,_) -> s)
         mPoss : List Pos
         mPoss = movablePos gs.board (pos, stAt)
         isSelect : Bool
 --         isSelect = (gs.playState == Neutral) && (isOwn gs.turn gs.board gs.mochiGoma (Debug.log "pos" pos))
-        isSelect = (gs.playState == Neutral) && (isOwn gs.turn gs.board gs.mochiGoma pos)
+        isSelect = (gs.playState == Neutral) && (isOwn gs.turn gs.board gs.mochiGoma1 gs.mochiGoma2 pos)
         isMove : Bool
         isMove = (gs.playState == Selected) && (L.member pos gs.movablePositions)
         opponent_ : Player
         opponent_ = opponent gs.turn
-        mochiGoma_ : StateAt -> Maybe Pos -> List (KomaType, Player)
-        mochiGoma_ stAt clickedP = case (Debug.log "mochiGoma_ pos" pos) of
-                       OnBoard _ -> case getStateAt gs.board gs.mochiGoma pos of
-                         Just (kt, opponent_) -> (kt, gs.turn) :: gs.mochiGoma
+--         mochiGoma_ : StateAt -> Maybe Pos -> List (KomaType, Player)
+        mochiGoma_ : Player -> StateAt -> Maybe Pos -> KomaDai
+        mochiGoma_ pl stAt clickedP = case (Debug.log "mochiGoma_ pos" pos) of
+                       OnBoard _ -> case getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos of
+                         Just (kt, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push kt (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
                          otherwise -> case clickedP of
-                           Just (InHand _) -> gs.mochiGoma |> L.filter (\mG -> (Debug.log "clickedStateAt" stAt) /= Just mG)
-                           otherwise -> gs.mochiGoma
+                           Just (InHand player _) -> (if player == P1 then gs.mochiGoma1 else gs.mochiGoma2)
+                                                  |> A.filter (\mG -> (Debug.log "clickedStateAt" stAt) /= Just (mG,player))
+                           otherwise -> if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2
     in if | isMove -> { gs | playState <- Neutral
-                        , result <- if getStateAt gs.board gs.mochiGoma pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
+                        , result <- if getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
                         , board <- resetEffect <| updateBoard gs.board [
                                      (justOrCrash "xxx" gs.clickedPosition, Nothing, NoEffect)
                                    , (pos, gs.clickedStateAt, NoEffect)]
                         , turn <- (opponent gs.turn)
                         , clickedPosition <- Just pos
                         , movablePositions <- []
-                        , mochiGoma <- mochiGoma_ gs.clickedStateAt gs.clickedPosition
+                        , mochiGoma1 <- if gs.turn == P1 then mochiGoma_ P1 gs.clickedStateAt gs.clickedPosition else gs.mochiGoma1
+                        , mochiGoma2 <- if gs.turn == P2 then mochiGoma_ P2 gs.clickedStateAt gs.clickedPosition else gs.mochiGoma2
                       }
           | isSelect -> { gs | board <- selected pos gs
                       , playState <- Selected
-                      , clickedStateAt <- getStateAt gs.board gs.mochiGoma pos -- |> Debug.log "isSelect"
+                      , clickedStateAt <- getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos -- |> Debug.log "isSelect"
                       , clickedPosition <- Just pos
                       , movablePositions <- mPoss }
           | otherwise -> { gs | board <- cancelSelect gs.board
@@ -275,7 +293,7 @@ updateBoard b pses =
   let onBoardFilter : Board -> Board
       onBoardFilter = L.filter (\(p,_,_) -> case p of
                                            OnBoard _ -> True
-                                           InHand _ -> False)
+                                           InHand _ _ -> False)
       xy : Pos -> (Int,Int)
       xy p = case p of
                OnBoard xy -> xy
