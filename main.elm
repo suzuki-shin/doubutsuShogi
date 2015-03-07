@@ -56,21 +56,6 @@ clickMessage : Channel Pos
 clickMessage = channel <| OnBoard (0,0)
 
 
-
-show : (Pos, StateAt, Effect) -> Element
-show (p, s, e) =
-  let effect : Element -> Element
-      effect = if | e == Transparent -> opacity 0.5
-                  | otherwise -> opacity 1.0
-
-  in clickable (send clickMessage p) <| effect <| case s of
-       Nothing -> emptyImg
-       Just (kt, player) -> showKoma kt player
-
-
-showKoma : KomaType -> Player -> Element
-showKoma kt player = komaImg kt player |> fittedImage komaSize.x komaSize.y
-
 komaImg : KomaType -> Player -> String
 komaImg kt player =
     let ktImg = case kt of
@@ -151,9 +136,21 @@ gameState = foldp updateGameState initGameState (subscribe clickMessage)
 
 main =
   let
+      komaElement : KomaType -> Player -> Element
+      komaElement kt player = komaImg kt player |> fittedImage komaSize.x komaSize.y
+
+      celToElement : (Pos, StateAt, Effect) -> Element
+      celToElement (p, s, e) =
+        let effect : Element -> Element
+            effect = if | e == Transparent -> opacity 0.5
+                        | otherwise -> opacity 1.0
+        in clickable (send clickMessage p) <| effect <| case s of
+             Nothing -> emptyImg
+             Just (kt, player) -> komaElement kt player
+
       -- (Pos, StateAt, Effect) の二次元リストをElementに変換する
       fromListListStateAtToElement : List (List (Pos, StateAt, Effect)) -> Element
-      fromListListStateAtToElement = L.map (\cel -> flow right (L.map show cel)) >> flow down
+      fromListListStateAtToElement = L.map (\cel -> flow right (L.map celToElement cel)) >> flow down
 
       boardToElement : Board -> Element
       boardToElement = posKeyListTo2DList >> fromListListStateAtToElement >> color green
@@ -162,7 +159,7 @@ main =
       toClickable pos = clickable (send clickMessage pos)
 
       komaDaiToElement : Player -> KomaDai -> Element
-      komaDaiToElement pl = A.toIndexedList >> L.map (\(i, kt) -> toClickable (InHand pl i) (showKoma kt pl)) >> flow right
+      komaDaiToElement pl = A.toIndexedList >> L.map (\(i, kt) -> toClickable (InHand pl i) (komaElement kt pl)) >> flow right
 
       turnMessage : GameState -> Element
       turnMessage gs = case gs.result of
