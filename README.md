@@ -1,5 +1,6 @@
 # どうぶつしょうぎ
 どうぶつしょうぎっぽいものをelmで作ってみる
 
-http://suzuki-shin.github.io/doubutsuShogi/
+[![スクリーンショット]({{ site.baseurl }}/img/doubutsuShogi.png)](http://suzuki-shin.github.io/doubutsuShogi/)
+
 
