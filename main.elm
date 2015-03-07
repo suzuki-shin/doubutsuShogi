@@ -55,36 +55,6 @@ initBoard = [
 clickMessage : Channel Pos
 clickMessage = channel <| OnBoard (0,0)
 
-
-komaImg : KomaType -> Player -> String
-komaImg kt player =
-    let ktImg = case kt of
-                  Lion     -> "lion"
-                  Elephant -> "zou"
-                  Giraffe  -> "kirin"
-                  Chick    -> "hiyoko"
-        plImg = case player of
-                  P1 -> "A"
-                  P2 -> "B"
-    in "img/" ++ ktImg ++ plImg ++ ".gif"
-
-emptyImg : Element
-emptyImg = spacer komaSize.x komaSize.y |> color white
-
--- [((0,0), 'A'), ((1,0), 'B'), ((0,1), 'C'), ((1,1), 'D')] みたいな "Posが1要素目の2要素タプルのリスト" データを
--- [ ['A','B']
---  ,['C','D']] みたいな "二次元リスト" データに変換する
-posKeyListTo2DList : Board -> List (List (Pos, StateAt, Effect))
-posKeyListTo2DList tuples =
-  let yMax : Int
-      yMax = boardSize.y - 1
-      yiList : Int -> List (Pos, StateAt, Effect) -> List (Pos, StateAt, Effect)
-      yiList i = L.filter (\(p,_,_) -> case p of
-                                         OnBoard (_,y) -> y == i
-                                         InHand _ _ -> False)
-      tpl2nd3rd (_,b,c) = (b,c)
-  in L.map (\yi -> (yiList yi) tuples ) [0..yMax]
-
 -- 指定したマスの情報を返す
 getAt : Board -> KomaDai -> KomaDai -> Pos -> (Pos, StateAt, Effect)
 getAt b mochiG1 mochiG2 p =
@@ -99,22 +69,6 @@ getAt b mochiG1 mochiG2 p =
     in case p of
          OnBoard _ -> getAtOnBoard b p
          InHand player n -> getAtInHand (if player == P1 then mochiG1 else mochiG2) player n |> (\stAt -> (p, stAt, NoEffect))
-
-getStateAt : Board -> KomaDai -> KomaDai -> Pos -> StateAt
-getStateAt b mochiG1 mochiG2 p = getAt b mochiG1 mochiG2 p |> (\(_,s,_) -> s)
-
--- 指定したPosの駒が動かせる場合、その移動可能範囲にエフェクトをつける
-selected : Pos -> GameState -> Board
-selected p' gs =
-  let (pos, st, _) = getAt gs.board gs.mochiGoma1 gs.mochiGoma2 p'
-      player = justOrCrash "yyy" st |> snd
-      movablePos' : List Pos
-      movablePos' = movablePos gs.board (p', st)
-      effectedPoss : Pos -> Board -> List Pos
-      effectedPoss p' b = pos :: movablePos'
-  in if | (isOwn player gs.board gs.mochiGoma1 gs.mochiGoma2 p') && (not (L.isEmpty movablePos'))
-            -> L.map (\(p,s,e) -> if L.member p (effectedPoss p' gs.board) then (p,s,Transparent) else (p,s,e)) gs.board
-        | otherwise -> gs.board
 
 -- 選択状態を解除する
 cancelSelect : Board -> Board
@@ -136,8 +90,37 @@ gameState = foldp updateGameState initGameState (subscribe clickMessage)
 
 main =
   let
+      komaImg : KomaType -> Player -> String
+      komaImg kt player =
+          let ktImg = case kt of
+                        Lion     -> "lion"
+                        Elephant -> "zou"
+                        Giraffe  -> "kirin"
+                        Chick    -> "hiyoko"
+              plImg = case player of
+                        P1 -> "A"
+                        P2 -> "B"
+          in "img/" ++ ktImg ++ plImg ++ ".gif"
+
+      emptyImg : Element
+      emptyImg = spacer komaSize.x komaSize.y |> color white
+
       komaElement : KomaType -> Player -> Element
       komaElement kt player = komaImg kt player |> fittedImage komaSize.x komaSize.y
+
+      -- [((0,0), 'A'), ((1,0), 'B'), ((0,1), 'C'), ((1,1), 'D')] みたいな "Posが1要素目の2要素タプルのリスト" データを
+      -- [ ['A','B']
+      --  ,['C','D']] みたいな "二次元リスト" データに変換する
+      posKeyListTo2DList : Board -> List (List (Pos, StateAt, Effect))
+      posKeyListTo2DList tuples =
+        let yMax : Int
+            yMax = boardSize.y - 1
+            yiList : Int -> List (Pos, StateAt, Effect) -> List (Pos, StateAt, Effect)
+            yiList i = L.filter (\(p,_,_) -> case p of
+                                               OnBoard (_,y) -> y == i
+                                               InHand _ _ -> False)
+            tpl2nd3rd (_,b,c) = (b,c)
+        in L.map (\yi -> (yiList yi) tuples ) [0..yMax]
 
       celToElement : (Pos, StateAt, Effect) -> Element
       celToElement (p, s, e) =
@@ -234,6 +217,8 @@ updateGameState : Pos -> GameState -> GameState
 updateGameState pos gs =
     let stAt : StateAt
         stAt = getAt (gs.board) (gs.mochiGoma1) (gs.mochiGoma2) pos |> (\(_,s,_) -> s)
+        getStateAt : Board -> KomaDai -> KomaDai -> Pos -> StateAt
+        getStateAt b mochiG1 mochiG2 p = getAt b mochiG1 mochiG2 p |> (\(_,s,_) -> s)
         mPoss : List Pos
         mPoss = movablePos gs.board (pos, stAt)
         isSelect : Bool
@@ -250,6 +235,22 @@ updateGameState pos gs =
                            Just (InHand player _) -> (if player == P1 then gs.mochiGoma1 else gs.mochiGoma2)
                                                   |> A.filter (\mG -> (Debug.log "clickedStateAt" stAt) /= Just (mG,player))
                            otherwise -> if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2
+        -- 指定したPosの駒が動かせる場合、その移動可能範囲にエフェクトをつける
+        selected : Pos -> GameState -> Board
+        selected p' gs =
+          let (pos, st, _) = getAt gs.board gs.mochiGoma1 gs.mochiGoma2 p'
+              player = justOrCrash "yyy" st |> snd
+              movablePos' : List Pos
+              movablePos' = movablePos gs.board (p', st)
+              effectedPoss : Pos -> Board -> List Pos
+              effectedPoss p' b = pos :: movablePos'
+          in if | (isOwn player gs.board gs.mochiGoma1 gs.mochiGoma2 p') && (not (L.isEmpty movablePos'))
+                    -> L.map (\(p,s,e) -> if L.member p (effectedPoss p' gs.board) then (p,s,Transparent) else (p,s,e)) gs.board
+                | otherwise -> gs.board
+
+        resetEffect : Board -> Board
+        resetEffect = L.map (\(p,s,e) -> (p,s,NoEffect))
+
     in if | isMove -> { gs | playState <- Neutral
                         , result <- if getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
                         , board <- resetEffect <| updateBoard gs.board [
@@ -297,9 +298,6 @@ updateBoard b pses =
       boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (OnBoard p,s,e))
 
   in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b pses
-
-resetEffect : Board -> Board
-resetEffect = L.map (\(p,s,e) -> (p,s,NoEffect))
 
 justOrCrash : String -> Maybe a -> a
 justOrCrash errStr m = case m of
