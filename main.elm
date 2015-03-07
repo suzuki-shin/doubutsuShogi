@@ -204,8 +204,8 @@ emptyPoss = L.filter (\(p,s,_) -> s == Nothing && case p of
                                                       otherwise -> False) >> L.map (\(p,_,_) -> p)
 
 -- 指定したPosに自分の駒があるかどうかを返す
-isOwn : Player -> Board -> KomaDai -> KomaDai -> Pos -> Bool
-isOwn player board mochiGoma1 mochiGoma2 pos = case pos of
+isOwn : Player -> Board -> Pos -> Bool
+isOwn player board pos = case pos of
   OnBoard _ -> L.member pos (possesOf player board)
   InHand mochiGPlayer _ -> player == mochiGPlayer
 
@@ -218,7 +218,7 @@ updateGameState pos gs =
         mPoss : List Pos
         mPoss = movablePos gs.board (pos, stAt)
         isSelect : Bool
-        isSelect = (gs.playState == Neutral) && (isOwn gs.turn gs.board gs.mochiGoma1 gs.mochiGoma2 pos)
+        isSelect = (gs.playState == Neutral) && (isOwn gs.turn gs.board pos)
         isMove : Bool
         isMove = (gs.playState == Selected) && (L.member pos gs.movablePositions)
         opponent_ : Player
@@ -240,7 +240,7 @@ updateGameState pos gs =
               movablePos' = movablePos gs.board (p', st)
               effectedPoss : Pos -> Board -> List Pos
               effectedPoss p' b = pos :: movablePos'
-          in if | (isOwn player gs.board gs.mochiGoma1 gs.mochiGoma2 p') && (not (L.isEmpty movablePos'))
+          in if | (isOwn player gs.board p') && (not (L.isEmpty movablePos'))
                     -> L.map (\(p,s,e) -> if L.member p (effectedPoss p' gs.board) then (p,s,Transparent) else (p,s,e)) gs.board
                 | otherwise -> gs.board
 
