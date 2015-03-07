@@ -70,10 +70,6 @@ getAt b mochiG1 mochiG2 p =
          OnBoard _ -> getAtOnBoard b p
          InHand player n -> getAtInHand (if player == P1 then mochiG1 else mochiG2) player n |> (\stAt -> (p, stAt, NoEffect))
 
--- 選択状態を解除する
-cancelSelect : Board -> Board
-cancelSelect = L.map (\(p,s,e) -> (p,s, NoEffect))
-
 initGameState : GameState
 initGameState = { board = initBoard
                  , turn = P1
@@ -183,13 +179,15 @@ movablePosOnBoard : Board -> ((Int,Int), StateAt) -> List Pos
 movablePosOnBoard b ((x,y), s) =
   let filterFunc : Player -> (Int,Int) -> Bool
       filterFunc pl xy = (isOnBoard b xy) && not (L.member (OnBoard xy) (possesOf pl b))
+      movableArea : KomaType -> Player -> List (Int, Int)
+      movableArea kt pl = case kt of
+         Lion     -> [(x-1,y),(x,y-1),(x+1,y),(x,y+1),(x+1,y+1),(x+1,y-1),(x-1,y+1),(x-1,y-1)]
+         Elephant -> [(x+1,y+1),(x-1,y+1),(x-1,y-1),(x+1,y-1)]
+         Giraffe  -> [(x,y+1),(x,y-1),(x+1,y),(x-1,y)]
+         Chick    -> [(x,if pl == P1 then y-1 else y+1)]
   in case s of
        Nothing -> []
-       Just (kt, pl) -> case (kt, pl) of
-         (Lion, p) -> [(x-1,y),(x,y-1),(x+1,y),(x,y+1),(x+1,y+1),(x+1,y-1),(x-1,y+1),(x-1,y-1)] |> L.filter (filterFunc p) |> L.map OnBoard
-         (Elephant, p) -> [(x+1,y+1),(x-1,y+1),(x-1,y-1),(x+1,y-1)] |> L.filter (filterFunc p) |> L.map OnBoard
-         (Giraffe, p) -> [(x,y+1),(x,y-1),(x+1,y),(x-1,y)] |> L.filter (filterFunc p) |> L.map OnBoard
-         (Chick, p) -> [(x,if p == P1 then y-1 else y+1)] |> L.filter (filterFunc p) |> L.map OnBoard
+       Just (kt, pl) -> movableArea kt pl |> L.filter (filterFunc pl) |> L.map OnBoard
 
 -- 指定したプレイヤーの駒が占めているボード上のPosのリストを返す
 possesOf : Player -> Board -> List Pos
@@ -246,6 +244,10 @@ updateGameState pos gs =
 
         resetEffect : Board -> Board
         resetEffect = L.map (\(p,s,e) -> (p,s,NoEffect))
+
+        -- 選択状態を解除する
+        cancelSelect : Board -> Board
+        cancelSelect = L.map (\(p,s,e) -> (p,s, NoEffect))
 
     in if | isMove -> { gs | playState <- Neutral
                         , result <- if getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
