@@ -17,7 +17,8 @@ type Player = P1 | P2
 type KomaType = Lion | Elephant | Giraffe | Chick
 type alias StateAt = Maybe (KomaType, Player)
 type Effect = NoEffect | Transparent
-type alias Board = List (Pos, StateAt, Effect)
+type alias Cel = (Pos, StateAt, Effect)
+type alias Board = List Cel
 type alias KomaDai = Array KomaType
 type GameResult = Unfinished | Win Player | Draw
 type PlayState = Neutral | Selected
@@ -60,9 +61,9 @@ clickMessage : Channel Pos
 clickMessage = channel <| OnBoard (0,0)
 
 -- 指定したマスの情報を返す
-getAt : Board -> KomaDai -> KomaDai -> Pos -> (Pos, StateAt, Effect)
+getAt : Board -> KomaDai -> KomaDai -> Pos -> Cel
 getAt b mochiG1 mochiG2 p =
-    let getAtOnBoard : Board -> Pos -> (Pos, StateAt, Effect)
+    let getAtOnBoard : Board -> Pos -> Cel
         getAtOnBoard b p = case L.filter (\(p',_,_) -> p' == p) b of
               [a] -> a
               otherwise -> (p, Nothing, NoEffect)
@@ -111,18 +112,18 @@ main =
       -- [((0,0), 'A'), ((1,0), 'B'), ((0,1), 'C'), ((1,1), 'D')] みたいな "Posが1要素目の2要素タプルのリスト" データを
       -- [ ['A','B']
       --  ,['C','D']] みたいな "二次元リスト" データに変換する
-      posKeyListTo2DList : Board -> List (List (Pos, StateAt, Effect))
+      posKeyListTo2DList : Board -> List (List Cel)
       posKeyListTo2DList tuples =
         let yMax : Int
             yMax = boardSize.y - 1
-            yiList : Int -> List (Pos, StateAt, Effect) -> List (Pos, StateAt, Effect)
+            yiList : Int -> List Cel -> List Cel
             yiList i = L.filter (\(p,_,_) -> case p of
                                                OnBoard (_,y) -> y == i
                                                InHand _ _ -> False)
             tpl2nd3rd (_,b,c) = (b,c)
         in L.map (\yi -> (yiList yi) tuples ) [0..yMax]
 
-      celToElement : (Pos, StateAt, Effect) -> Element
+      celToElement : Cel -> Element
       celToElement (p, s, e) =
         let effect : Element -> Element
             effect = if | e == Transparent -> opacity 0.5
@@ -131,8 +132,8 @@ main =
              Nothing -> emptyImg
              Just (kt, player) -> komaElement kt player
 
-      -- (Pos, StateAt, Effect) の二次元リストをElementに変換する
-      fromListListStateAtToElement : List (List (Pos, StateAt, Effect)) -> Element
+      -- Cel の二次元リストをElementに変換する
+      fromListListStateAtToElement : List (List Cel) -> Element
       fromListListStateAtToElement = L.map (\cel -> flow right (L.map celToElement cel)) >> flow down
 
       boardToElement : Board -> Element
@@ -249,7 +250,6 @@ updateGameState pos gs =
         resetEffect : Board -> Board
         resetEffect = L.map (\(p,s,e) -> (p,s,NoEffect))
 
-        -- 選択状態を解除する
         cancelSelect : Board -> Board
         cancelSelect = L.map (\(p,s,e) -> (p,s, NoEffect))
 
@@ -279,8 +279,8 @@ updateGameState pos gs =
 opponent : Player -> Player
 opponent p = if p == P1 then P2 else P1
 
-updateBoard : Board -> List (Pos, StateAt, Effect) -> Board
-updateBoard b pses =
+updateBoard : Board -> List Cel -> Board
+updateBoard b updatedCels =
   let onBoardFilter : Board -> Board
       onBoardFilter = L.filter (\(p,_,_) -> case p of
                                            OnBoard _ -> True
@@ -288,7 +288,7 @@ updateBoard b pses =
       xy : Pos -> (Int,Int)
       xy p = case p of
                OnBoard xy -> xy
-      updateOnePos : Board -> (Pos, StateAt, Effect) -> Board
+      updateOnePos : Board -> Cel -> Board
       updateOnePos b (p,s,e) = case p of
         OnBoard xy_ -> boardToDict b |> D.update xy_ (\_ -> Just (s, e)) |> boardFromDict
         otherwise -> b
@@ -299,7 +299,7 @@ updateBoard b pses =
       boardFromDict : D.Dict (Int, Int) (StateAt, Effect) -> Board
       boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (OnBoard p,s,e))
 
-  in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b pses
+  in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b updatedCels
 
 justOrCrash : String -> Maybe a -> a
 justOrCrash errStr m = case m of
