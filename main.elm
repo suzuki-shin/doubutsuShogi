@@ -14,10 +14,11 @@ import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp)
 
 type Pos = OnBoard (Int,Int) | InHand Player Int
 type Player = P1 | P2
-type KomaType = Lion | Elephant | Giraffe | Chick
+type KomaType = Lion | Elephant | Giraffe | Chick | Chicken
 type alias StateAt = Maybe (KomaType, Player)
 type Effect = NoEffect | Transparent
-type alias Board = List (Pos, StateAt, Effect)
+type alias Cel = (Pos, StateAt, Effect)
+type alias Board = List Cel
 type alias KomaDai = Array KomaType
 type GameResult = Unfinished | Win Player | Draw
 type PlayState = Neutral | Selected
@@ -32,6 +33,10 @@ type alias GameState = {
   , mochiGoma1 : KomaDai
   , mochiGoma2 : KomaDai
   }
+
+show a = case a of
+           P1 -> "先手"
+           P2 -> "後手"
 
 boardSize = {x = 3, y = 4}
 komaSize = {x = 100, y = 100}
@@ -56,9 +61,9 @@ clickMessage : Channel Pos
 clickMessage = channel <| OnBoard (0,0)
 
 -- 指定したマスの情報を返す
-getAt : Board -> KomaDai -> KomaDai -> Pos -> (Pos, StateAt, Effect)
+getAt : Board -> KomaDai -> KomaDai -> Pos -> Cel
 getAt b mochiG1 mochiG2 p =
-    let getAtOnBoard : Board -> Pos -> (Pos, StateAt, Effect)
+    let getAtOnBoard : Board -> Pos -> Cel
         getAtOnBoard b p = case L.filter (\(p',_,_) -> p' == p) b of
               [a] -> a
               otherwise -> (p, Nothing, NoEffect)
@@ -93,10 +98,11 @@ main =
                         Elephant -> "zou"
                         Giraffe  -> "kirin"
                         Chick    -> "hiyoko"
+                        Chicken  -> "niwatori"
               plImg = case player of
                         P1 -> "A"
                         P2 -> "B"
-          in "img/" ++ ktImg ++ plImg ++ ".gif"
+          in "img/" ++ ktImg ++ plImg ++ ".png"
 
       emptyImg : Element
       emptyImg = spacer komaSize.x komaSize.y |> color white
@@ -107,18 +113,18 @@ main =
       -- [((0,0), 'A'), ((1,0), 'B'), ((0,1), 'C'), ((1,1), 'D')] みたいな "Posが1要素目の2要素タプルのリスト" データを
       -- [ ['A','B']
       --  ,['C','D']] みたいな "二次元リスト" データに変換する
-      posKeyListTo2DList : Board -> List (List (Pos, StateAt, Effect))
+      posKeyListTo2DList : Board -> List (List Cel)
       posKeyListTo2DList tuples =
         let yMax : Int
             yMax = boardSize.y - 1
-            yiList : Int -> List (Pos, StateAt, Effect) -> List (Pos, StateAt, Effect)
+            yiList : Int -> List Cel -> List Cel
             yiList i = L.filter (\(p,_,_) -> case p of
                                                OnBoard (_,y) -> y == i
                                                InHand _ _ -> False)
             tpl2nd3rd (_,b,c) = (b,c)
         in L.map (\yi -> (yiList yi) tuples ) [0..yMax]
 
-      celToElement : (Pos, StateAt, Effect) -> Element
+      celToElement : Cel -> Element
       celToElement (p, s, e) =
         let effect : Element -> Element
             effect = if | e == Transparent -> opacity 0.5
@@ -127,8 +133,8 @@ main =
              Nothing -> emptyImg
              Just (kt, player) -> komaElement kt player
 
-      -- (Pos, StateAt, Effect) の二次元リストをElementに変換する
-      fromListListStateAtToElement : List (List (Pos, StateAt, Effect)) -> Element
+      -- Cel の二次元リストをElementに変換する
+      fromListListStateAtToElement : List (List Cel) -> Element
       fromListListStateAtToElement = L.map (\cel -> flow right (L.map celToElement cel)) >> flow down
 
       boardToElement : Board -> Element
@@ -142,8 +148,8 @@ main =
 
       turnMessage : GameState -> Element
       turnMessage gs = case gs.result of
-                             Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
-                             otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
+                             Win p -> flow right [p |> show |> T.plainText,  T.plainText "の勝ちです"]
+                             otherwise -> flow right [gs.turn |> show |> T.plainText, T.plainText "の手番です"]
 
       -- GameStateの更新を受け取って描画する
       view : GameState -> Element
@@ -185,6 +191,7 @@ movablePosOnBoard b ((x,y), s) =
          Elephant -> [(x+1,y+1),(x-1,y+1),(x-1,y-1),(x+1,y-1)]
          Giraffe  -> [(x,y+1),(x,y-1),(x+1,y),(x-1,y)]
          Chick    -> [(x,if pl == P1 then y-1 else y+1)]
+         Chicken  -> [(x,y+1),(x,y-1),(x+1,y),(x-1,y)] ++ if pl == P1 then [(x-1,y-1),(x+1,y-1)] else [(x-1,y+1),(x+1,y+1)]
   in case s of
        Nothing -> []
        Just (kt, pl) -> movableArea kt pl |> L.filter (filterFunc pl) |> L.map OnBoard
@@ -224,6 +231,7 @@ updateGameState pos gs =
         mochiGoma_ : Player -> StateAt -> Maybe Pos -> KomaDai
         mochiGoma_ pl stAt clickedP = case (Debug.log "mochiGoma_ pos" pos) of
                        OnBoard _ -> case getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos of
+                         Just (Chicken, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push Chick (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
                          Just (kt, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push kt (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
                          otherwise -> case clickedP of
                            Just (InHand player _) -> (if player == P1 then gs.mochiGoma1 else gs.mochiGoma2)
@@ -245,7 +253,6 @@ updateGameState pos gs =
         resetEffect : Board -> Board
         resetEffect = L.map (\(p,s,e) -> (p,s,NoEffect))
 
-        -- 選択状態を解除する
         cancelSelect : Board -> Board
         cancelSelect = L.map (\(p,s,e) -> (p,s, NoEffect))
 
@@ -253,7 +260,9 @@ updateGameState pos gs =
                         , result <- if getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
                         , board <- resetEffect <| updateBoard gs.board [
                                      (justOrCrash "xxx" gs.clickedPosition, Nothing, NoEffect)
-                                   , (pos, gs.clickedStateAt, NoEffect)]
+                                   , (pos, gs.clickedStateAt, NoEffect) |> \cel -> case gs.clickedPosition of
+                                                                                     Just (OnBoard _) -> nari cel
+                                                                                     otherwise -> cel]
                         , turn <- (opponent gs.turn)
                         , clickedPosition <- Just pos
                         , movablePositions <- []
@@ -275,8 +284,14 @@ updateGameState pos gs =
 opponent : Player -> Player
 opponent p = if p == P1 then P2 else P1
 
-updateBoard : Board -> List (Pos, StateAt, Effect) -> Board
-updateBoard b pses =
+nari : Cel -> Cel
+nari cel = case cel of
+    (OnBoard (x,0), Just (Chick, P1), e) -> (OnBoard (x,0), Just (Chicken, P1), e)
+    (OnBoard (x,3), Just (Chick, P2), e) -> (OnBoard (x,3), Just (Chicken, P2), e)
+    otherwise -> cel
+
+updateBoard : Board -> List Cel -> Board
+updateBoard b updatedCels =
   let onBoardFilter : Board -> Board
       onBoardFilter = L.filter (\(p,_,_) -> case p of
                                            OnBoard _ -> True
@@ -284,7 +299,7 @@ updateBoard b pses =
       xy : Pos -> (Int,Int)
       xy p = case p of
                OnBoard xy -> xy
-      updateOnePos : Board -> (Pos, StateAt, Effect) -> Board
+      updateOnePos : Board -> Cel -> Board
       updateOnePos b (p,s,e) = case p of
         OnBoard xy_ -> boardToDict b |> D.update xy_ (\_ -> Just (s, e)) |> boardFromDict
         otherwise -> b
@@ -295,7 +310,7 @@ updateBoard b pses =
       boardFromDict : D.Dict (Int, Int) (StateAt, Effect) -> Board
       boardFromDict d = D.toList d |> L.map (\(p, (s,e)) -> (OnBoard p,s,e))
 
-  in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b pses
+  in L.foldl (\(p,s,e) b' -> updateOnePos b' (p,s,e)) b updatedCels
 
 justOrCrash : String -> Maybe a -> a
 justOrCrash errStr m = case m of
