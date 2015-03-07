@@ -14,7 +14,7 @@ import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp)
 
 type Pos = OnBoard (Int,Int) | InHand Player Int
 type Player = P1 | P2
-type KomaType = Lion | Elephant | Giraffe | Chick
+type KomaType = Lion | Elephant | Giraffe | Chick | Chicken
 type alias StateAt = Maybe (KomaType, Player)
 type Effect = NoEffect | Transparent
 type alias Cel = (Pos, StateAt, Effect)
@@ -98,10 +98,11 @@ main =
                         Elephant -> "zou"
                         Giraffe  -> "kirin"
                         Chick    -> "hiyoko"
+                        Chicken  -> "niwatori"
               plImg = case player of
                         P1 -> "A"
                         P2 -> "B"
-          in "img/" ++ ktImg ++ plImg ++ ".gif"
+          in "img/" ++ ktImg ++ plImg ++ ".png"
 
       emptyImg : Element
       emptyImg = spacer komaSize.x komaSize.y |> color white
@@ -190,6 +191,7 @@ movablePosOnBoard b ((x,y), s) =
          Elephant -> [(x+1,y+1),(x-1,y+1),(x-1,y-1),(x+1,y-1)]
          Giraffe  -> [(x,y+1),(x,y-1),(x+1,y),(x-1,y)]
          Chick    -> [(x,if pl == P1 then y-1 else y+1)]
+         Chicken  -> [(x,y+1),(x,y-1),(x+1,y),(x-1,y)] ++ if pl == P1 then [(x-1,y-1),(x+1,y-1)] else [(x-1,y+1),(x+1,y+1)]
   in case s of
        Nothing -> []
        Just (kt, pl) -> movableArea kt pl |> L.filter (filterFunc pl) |> L.map OnBoard
@@ -229,6 +231,7 @@ updateGameState pos gs =
         mochiGoma_ : Player -> StateAt -> Maybe Pos -> KomaDai
         mochiGoma_ pl stAt clickedP = case (Debug.log "mochiGoma_ pos" pos) of
                        OnBoard _ -> case getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos of
+                         Just (Chicken, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push Chick (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
                          Just (kt, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push kt (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
                          otherwise -> case clickedP of
                            Just (InHand player _) -> (if player == P1 then gs.mochiGoma1 else gs.mochiGoma2)
@@ -257,7 +260,9 @@ updateGameState pos gs =
                         , result <- if getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
                         , board <- resetEffect <| updateBoard gs.board [
                                      (justOrCrash "xxx" gs.clickedPosition, Nothing, NoEffect)
-                                   , (pos, gs.clickedStateAt, NoEffect)]
+                                   , (pos, gs.clickedStateAt, NoEffect) |> \cel -> case gs.clickedPosition of
+                                                                                     Just (OnBoard _) -> nari cel
+                                                                                     otherwise -> cel]
                         , turn <- (opponent gs.turn)
                         , clickedPosition <- Just pos
                         , movablePositions <- []
@@ -278,6 +283,12 @@ updateGameState pos gs =
 -- 対戦相手
 opponent : Player -> Player
 opponent p = if p == P1 then P2 else P1
+
+nari : Cel -> Cel
+nari cel = case cel of
+    (OnBoard (x,0), Just (Chick, P1), e) -> (OnBoard (x,0), Just (Chicken, P1), e)
+    (OnBoard (x,3), Just (Chick, P2), e) -> (OnBoard (x,3), Just (Chicken, P2), e)
+    otherwise -> cel
 
 updateBoard : Board -> List Cel -> Board
 updateBoard b updatedCels =
