@@ -100,9 +100,6 @@ posKeyListTo2DList tuples =
       tpl2nd3rd (_,b,c) = (b,c)
   in L.map (\yi -> (yiList yi) tuples ) [0..yMax]
 
-fromListListStateAtToElement : List (List (Pos, StateAt, Effect)) -> Element
-fromListListStateAtToElement = L.map (\cel -> flow right (L.map show cel)) >> flow down
-
 -- 指定したマスの情報を返す
 getAt : Board -> KomaDai -> KomaDai -> Pos -> (Pos, StateAt, Effect)
 getAt b mochiG1 mochiG2 p =
@@ -154,27 +151,38 @@ gameState = foldp updateGameState initGameState (subscribe clickMessage)
 
 main =
   let
-      a : Board -> Element
-      a b = b |> posKeyListTo2DList |> fromListListStateAtToElement
+      -- (Pos, StateAt, Effect) の二次元リストをElementに変換する
+      fromListListStateAtToElement : List (List (Pos, StateAt, Effect)) -> Element
+      fromListListStateAtToElement = L.map (\cel -> flow right (L.map show cel)) >> flow down
+
+      boardToElement : Board -> Element
+      boardToElement = posKeyListTo2DList >> fromListListStateAtToElement >> color green
+
       toClickable : Pos -> Element -> Element
       toClickable pos = clickable (send clickMessage pos)
-      komaDai : KomaDai -> KomaDai -> Element
-      komaDai mochiG1 mochiG2 =
-          flow down [
-                    mochiG2 |> A.toIndexedList |> L.map (\(i, kt) -> toClickable (InHand P2 i) (showKoma kt P2)) |> flow right
-                  , mochiG1 |> A.toIndexedList |> L.map (\(i, kt) -> toClickable (InHand P1 i) (showKoma kt P1)) |> flow right
-                 ]
+
+      komaDaiToElement : Player -> KomaDai -> Element
+      komaDaiToElement pl = A.toIndexedList >> L.map (\(i, kt) -> toClickable (InHand pl i) (showKoma kt pl)) >> flow right
+
+      turnMessage : GameState -> Element
+      turnMessage gs = case gs.result of
+                             Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
+                             otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
+
+      -- GameStateの更新を受け取って描画する
       view : GameState -> Element
       view gs = flow right [
-                 flow down [
-                   case gs.result of
-                     Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
-                     otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
-                 , a gs.board |> color green
-                 , T.asText gs
-                      ] |> width (boardSize.x * komaSize.x)
-                , komaDai gs.mochiGoma1 gs.mochiGoma2
+                  flow down [
+                      turnMessage gs
+                    , boardToElement gs.board
+                    , T.asText gs
+                  ] |> width (boardSize.x * komaSize.x)
+                , flow down [
+                      komaDaiToElement P2 gs.mochiGoma2
+                    , komaDaiToElement P1 gs.mochiGoma1
+                  ]
                 ]
+
   in view <~ gameState
 
 -- その座標が盤上かどうかを返す
