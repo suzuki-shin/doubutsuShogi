@@ -157,7 +157,7 @@ main =
                   flow down [
                       turnMessage gs
                     , boardToElement gs.board
-                    , T.asText gs
+--                     , T.asText gs
                   ] |> width (boardSize.x * komaSize.x)
                 , flow down [
                       komaDaiToElement P2 gs.mochiGoma2
@@ -226,6 +226,8 @@ updateGameState pos gs =
         isSelect = (gs.playState == Neutral) && (isOwn gs.turn gs.board pos)
         isMove : Bool
         isMove = (gs.playState == Selected) && (L.member pos gs.movablePositions)
+        isFinished : Bool
+        isFinished = gs.result /= Unfinished
         opponent_ : Player
         opponent_ = opponent gs.turn
         mochiGoma_ : Player -> StateAt -> Maybe Pos -> KomaDai
@@ -256,7 +258,8 @@ updateGameState pos gs =
         cancelSelect : Board -> Board
         cancelSelect = L.map (\(p,s,e) -> (p,s, NoEffect))
 
-    in if | isMove -> { gs | playState <- Neutral
+    in if | isFinished -> gs
+          | isMove -> { gs | playState <- Neutral
                         , result <- if getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
                         , board <- resetEffect <| updateBoard gs.board [
                                      (justOrCrash "xxx" gs.clickedPosition, Nothing, NoEffect)
