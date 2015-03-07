@@ -38,9 +38,9 @@ komaSize = {x = 100, y = 100}
 
 initBoard : Board
 initBoard = [
-    (OnBoard (0,0), Just (Elephant, P2), NoEffect)
+    (OnBoard (0,0), Just (Giraffe, P2), NoEffect)
   , (OnBoard (1,0), Just (Lion, P2), NoEffect)
-  , (OnBoard (2,0), Just (Giraffe, P2), NoEffect)
+  , (OnBoard (2,0), Just (Elephant, P2), NoEffect)
   , (OnBoard (0,1), Nothing, NoEffect)
   , (OnBoard (1,1), Just (Chick, P2), NoEffect)
   , (OnBoard (2,1), Nothing, NoEffect)
