@@ -206,12 +206,8 @@ emptyPoss = L.filter (\(p,s,_) -> s == Nothing && case p of
 -- 指定したPosに自分の駒があるかどうかを返す
 isOwn : Player -> Board -> KomaDai -> KomaDai -> Pos -> Bool
 isOwn player board mochiGoma1 mochiGoma2 pos = case pos of
-  OnBoard xy -> L.member pos (possesOf player board)
-  InHand player n ->
-      let a = Debug.log "InHand n" n
-          b = Debug.log "InHand player" player
-      in L.member n (L.map (\(i,_) -> i) (A.toIndexedList (if player == P1 then mochiGoma1 else mochiGoma2))) -- |> Debug.log "isOwn InHand"
-
+  OnBoard _ -> L.member pos (possesOf player board)
+  InHand mochiGPlayer _ -> player == mochiGPlayer
 
 updateGameState : Pos -> GameState -> GameState
 updateGameState pos gs =
