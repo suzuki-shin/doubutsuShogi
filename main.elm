@@ -33,6 +33,10 @@ type alias GameState = {
   , mochiGoma2 : KomaDai
   }
 
+show a = case a of
+           P1 -> "先手"
+           P2 -> "後手"
+
 boardSize = {x = 3, y = 4}
 komaSize = {x = 100, y = 100}
 
@@ -142,8 +146,8 @@ main =
 
       turnMessage : GameState -> Element
       turnMessage gs = case gs.result of
-                             Win p -> flow right [T.asText p,  T.plainText "の勝ちです"]
-                             otherwise -> flow right [T.asText gs.turn, T.plainText "の手番です"]
+                             Win p -> flow right [p |> show |> T.plainText,  T.plainText "の勝ちです"]
+                             otherwise -> flow right [gs.turn |> show |> T.plainText, T.plainText "の手番です"]
 
       -- GameStateの更新を受け取って描画する
       view : GameState -> Element
