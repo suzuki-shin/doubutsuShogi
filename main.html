@@ -1,0 +1,27 @@
+<html>
+
+  <head>
+    <title>どうぶつしょうぎ</title>
+    <script type="text/javascript" src="elm.js"></script>
+  </head>
+
+  <body>
+    <h1>どうぶつしょうぎ</h1>
+    <div id="main" style="width:50%; height:400px;"></div>
+
+    <ul id="board"></ul>
+  </body>
+
+  <!-- <script src="http://cdn.mlkcca.com/v0.2.8/milkcocoa.js"></script>
+  <script src="main.js"></script> -->
+  <script type="text/javascript">
+    var mainDiv = document.getElementById('main');
+    elmModule = Elm.embed(Elm.Main, mainDiv);
+   /* elmModule.ports.arws.subscribe(hoge);
+   function hoge(a) {
+   console.log(a);
+   sendText(a.x);
+   } */
+  </script>
+
+</html>
