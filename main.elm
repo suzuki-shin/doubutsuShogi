@@ -348,3 +348,64 @@ toExGameState gs = {
 
 port exGameState : Signal ExGameState
 port exGameState = toExGameState <~ gameState
+
+
+
+type alias ExPos = {typ : String, label : String, x : Maybe Int, y : Maybe Int, player : Maybe ExPlayer, n : Maybe Int}
+type alias ExPlayer = {typ : String, label : String}
+type alias ExKomaType = {typ : String, label : String}
+type alias ExStateAt = {typ : String, label : String, komaType : Maybe ExKomaType, player : Maybe ExPlayer}
+type alias ExEffect = {typ : String, label : String}
+
+
+-- type Pos = OnBoard (Int,Int) | InHand Player Int
+toExPos : Pos -> ExPos
+toExPos pos = case pos of
+  OnBoard (x,y) -> {typ = "Pos", label = "OnBoard", x = Just x, y = Just y, player = Nothing, n = Nothing}
+  InHand pl n -> {typ = "Pos", label = "InHand", x = Nothing, y = Nothing, player = Just (toExPlayer pl), n = Just n}
+
+-- type Player = P1 | P2
+toExPlayer : Player -> ExPlayer
+toExPlayer pl = case pl of
+   P1 -> {typ = "Player", label = "P1"}
+   P2 -> {typ = "Player", label = "P2"}
+
+-- type KomaType = Lion | Elephant | Giraffe | Chick | Chicken
+toExKomaType : KomaType -> ExKomaType
+toExKomaType kt = case kt of
+  Lion -> {typ = "KomaType", label = "Lion"}
+  Elephant -> {typ = "KomaType", label = "Elephant"}
+  Giraffe -> {typ = "KomaType", label = "Giraffe"}
+  Chick -> {typ = "KomaType", label = "Chick"}
+  Chicken -> {typ = "KomaType", label = "Chicken"}
+
+-- type alias StateAt = Maybe (KomaType, Player)
+-- toExStateAt : StateAt -> ExStateAt -- これをコメントアウトするとコンパイル通る（謎）
+toExStateAt st = case st of
+  Just (kt, pl) -> {typ = "StateAt", komaType = Just (toExKomaType kt), player = Just (toExPlayer pl)}
+  Nothing       -> {typ = "StateAt" , komaType = Nothing, player = Nothing}
+
+-- type Effect = NoEffect | Transparent
+toExEffect : Effect -> ExEffect
+toExEffect ef = case ef of
+  NoEffect -> {typ = "Effect", label = "NoEffect"}
+  Transparent -> {typ = "Effect", label = "Transparent"}
+
+-- type alias Cel = (Pos, StateAt, Effect)
+-- toExCel (p,s,e) = 
+
+-- type alias Board = List Cel
+-- type alias KomaDai = Array KomaType
+-- type GameResult = Unfinished | Win Player | Draw
+-- type PlayState = Neutral | Selected
+-- type alias GameState = {
+--     board : Board
+--   , turn : Player
+--   , playState : PlayState
+--   , result : GameResult
+--   , clickedStateAt : StateAt
+--   , clickedPosition : Maybe Pos
+--   , movablePositions : List Pos
+--   , mochiGoma1 : KomaDai
+--   , mochiGoma2 : KomaDai
+--   }
