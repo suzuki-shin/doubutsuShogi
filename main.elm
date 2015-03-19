@@ -145,7 +145,10 @@ main =
                   ]
                 ]
 
-  in view <~ gameState
+      view2 : ExGameState -> Element
+      view2 = fromExGameState  >> view
+  in view2 <~ inGameState
+--   in view <~ gameState
 
 -- その座標が盤上かどうかを返す
 isOnBoard : Board -> (Int,Int) -> Bool
@@ -300,31 +303,9 @@ justOrCrash errStr m = case m of
   Just a -> a
   Nothing -> Debug.crash errStr
 
---
---
---
-
-
--- type alias ExGameState = {
--- --     board : Board
---     turn : String
---   , playState : String
---   , result : String
---   , clickedStateAt : String
---   , clickedPosition : String
--- --   , movablePositions : List String
--- --   , mochiGoma1 : List String
--- --   , mochiGoma2 : List String
---   }
-
--- toExGameState : GameState -> ExGameState
--- toExGameState gs = {
---    turn = toString <| gs.turn
---  , playState = toString <| gs.playState
---  , result = toString <| gs.result
---  , clickedStateAt = toString <| gs.clickedStateAt
---  , clickedPosition = toString <| gs.clickedPosition
---  }
 
 port exGameState : Signal ExGameState
 port exGameState = toExGameState <~ gameState
+
+port inGameState : Signal ExGameState
+

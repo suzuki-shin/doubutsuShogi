@@ -144,7 +144,9 @@ toExGameState gs = {
   }
 
 fromExGameState : ExGameState -> GameState
-fromExGameState ex = {
+fromExGameState ex =
+    let a = Debug.log "fromExGameState ex: " ex
+    in {
     board = fromExBoard ex.board
   , turn = fromExPlayer ex.turn
   , playState = fromExPlayState ex.playState
@@ -158,4 +160,3 @@ fromExGameState ex = {
   , mochiGoma2 = fromExKomaDai ex.mochiGoma2
   }
 
-  
