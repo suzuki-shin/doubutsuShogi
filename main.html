@@ -6,7 +6,7 @@
   </head>
 
   <body>
-    <h1>どうぶつしょうぎ</h1>
+    <!-- <h1>どうぶつしょうぎ</h1> -->
     <ul id="board"></ul>
     <div id="main" style="width:50%; height:400px;"></div>
 
@@ -19,7 +19,13 @@
     var mainDiv = document.getElementById('main');
     var initGs = {
     typ : "GameState"
-  , board : []
+  , board : [
+       {  typ:"Cel"
+        , pos:{typ:"Pos", label:"OnBoard", x:0, y:0, player: {typ:"Player", label:"P1"}, n: -1}
+        , stateAt:{typ:"Stateat", komaType:{typ:"Komatype",label:"Lion"}, player:{typ:"Player", label:"P1"}}
+        , effect:{typ:"Effect", label:"NoEffect"}
+          }
+     ]
   , turn : {typ: "Player", label: "P1"}
   , playState : {typ: "PlayState", label: "Neutral"}
   , result : {typ: "GameResult", label: "Unfinished", player: {typ: "Player", label: "P1"}}
@@ -32,6 +38,8 @@
     elmModule = Elm.embed(Elm.Main, mainDiv, {inGameState: initGs});
    /* elmModule.ports.arws.subscribe(hoge); */
     elmModule.ports.exGameState.subscribe(hoge);
+    console.log("hey");
+    sendText(initGs);
    function hoge(a) {
    console.log(a);
    sendText(a);
