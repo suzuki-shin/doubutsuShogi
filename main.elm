@@ -150,7 +150,8 @@ main =
                 ]
 
       view2 : ExGameState -> Element
-      view2 = fromExGameState >> view
+      view2 exGs = (fromExGameState >> view) (Debug.log "exGs" exGs)
+--       view2 = fromExGameState >> view
   in view2 <~ inGameState
 --   in view <~ gameState
 
