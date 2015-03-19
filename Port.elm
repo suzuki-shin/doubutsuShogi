@@ -59,7 +59,9 @@ toExKomaType kt = case kt of
   Chicken -> {typ = "KomaType", label = "Chicken"}
 
 fromExKomaType : ExKomaType -> KomaType
-fromExKomaType ex = if
+fromExKomaType ex =
+    let a = Debug.log "fromExKomaType ex:" ex
+    in if
     | ex.label == "Lion" -> Lion
     | ex.label == "Elephant" -> Elephant
     | ex.label == "Giraffe" -> Giraffe
@@ -128,7 +130,10 @@ fromExPlayState ex = if
     | ex.label == "Selected" -> Selected
 
 toExGameState : GameState -> ExGameState
-toExGameState gs = {
+-- toExGameState gs = {
+toExGameState gs =
+    let a = Debug.log "toExGameState gs" gs
+    in {
     typ = "GameState"
   , board = toExBoard gs.board
   , turn = toExPlayer gs.turn
