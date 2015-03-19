@@ -79,6 +79,7 @@ main =
                         Giraffe  -> "kirin"
                         Chick    -> "hiyoko"
                         Chicken  -> "niwatori"
+                        otherwise -> Debug.log "ktImg" <| toString kt
               plImg = case player of
                         P1 -> "A"
                         P2 -> "B"
@@ -133,7 +134,10 @@ main =
 
       -- GameStateの更新を受け取って描画する
       view : GameState -> Element
-      view gs = flow right [
+--       view gs = flow right [
+      view gs =
+          let a = Debug.log "view gs" gs
+          in flow right [
                   flow down [
                       turnMessage gs
                     , boardToElement gs.board
@@ -146,7 +150,7 @@ main =
                 ]
 
       view2 : ExGameState -> Element
-      view2 = fromExGameState  >> view
+      view2 = fromExGameState >> view
   in view2 <~ inGameState
 --   in view <~ gameState
 
