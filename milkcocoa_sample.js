@@ -18,9 +18,9 @@ function sendText(text){
   });
 }
 
-chatDataStore.on("push",function(data){
-  addText(data.value.message);
-});
+// chatDataStore.on("push",function(data){
+//   addText('x:' + data.value.message.clickedPosition.x + ', y:' + data.value.message.clickedPosition.y);
+// });
 
 function addText(text){
   var msgDom = document.createElement("li");

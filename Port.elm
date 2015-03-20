@@ -60,7 +60,7 @@ toExKomaType kt = case kt of
 
 fromExKomaType : ExKomaType -> KomaType
 fromExKomaType ex =
-    let a = Debug.log "fromExKomaType ex:" ex
+    let a = ex -- Debug.log "fromExKomaType ex:" ex
     in if
     | ex.label == "Lion" -> Lion
     | ex.label == "Elephant" -> Elephant
@@ -135,7 +135,7 @@ fromExPlayState ex = if
 toExGameState : GameState -> ExGameState
 -- toExGameState gs = {
 toExGameState gs =
-    let a = Debug.log "toExGameState gs" gs
+    let a = "aaa" -- Debug.log "toExGameState gs" gs
     in {
     typ = "GameState"
   , board = toExBoard gs.board
@@ -147,13 +147,13 @@ toExGameState gs =
                         Just pos -> Just (toExPos pos)
                         Nothing -> Nothing
   , movablePositions = L.map toExPos gs.movablePositions
-  , mochiGoma1 = Debug.log "mochiGoma1 toExKomaDai" (toExKomaDai (Debug.log "mochiGoma1 gs.mochiGoma1"gs.mochiGoma1))
+  , mochiGoma1 = toExKomaDai gs.mochiGoma1
   , mochiGoma2 = toExKomaDai gs.mochiGoma2
   }
 
 fromExGameState : ExGameState -> GameState
 fromExGameState ex =
-    let a = Debug.log "fromExGameState ex: " ex
+    let a = "aa" -- Debug.log "fromExGameState ex: " ex
     in {
     board = fromExBoard ex.board
   , turn = fromExPlayer ex.turn

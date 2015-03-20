@@ -9,7 +9,7 @@ import Graphics.Element (..)
 import Graphics.Collage as GC
 import Graphics.Input (clickable)
 import Color (..)
-import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp)
+import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
 import Type
 import Type (..)
 import Port (..)
@@ -67,7 +67,9 @@ initGameState = { board = initBoard
                  , mochiGoma2 = A.empty }
 
 gameState : Signal GameState
-gameState = foldp updateGameState initGameState (subscribe clickMessage)
+--gameState = foldp updateGameState initGameState (subscribe clickMessage) -- ここで inSignal からの signal をマージすればいい？
+--gameState = foldp updateGameState initGameState <| merge (subscribe clickMessage) (fromExPos <~ inClickedPos)
+gameState = foldp updateGameState initGameState (fromExPos <~ inClickedPos)
 
 main =
   let
@@ -149,11 +151,11 @@ main =
                   ]
                 ]
 
-      view2 : ExGameState -> Element
-      view2 exGs = (fromExGameState >> view) (Debug.log "exGs" exGs)
+--       view2 : ExGameState -> Element
+--       view2 exGs = (fromExGameState >> view) (Debug.log "exGs" exGs)
 --       view2 = fromExGameState >> view
-  in view2 <~ inGameState
---   in view <~ gameState
+--   in view2 <~ inGameState
+   in view <~ gameState
 
 -- その座標が盤上かどうかを返す
 isOnBoard : Board -> (Int,Int) -> Bool
@@ -219,13 +221,21 @@ updateGameState pos gs =
         opponent_ : Player
         opponent_ = opponent gs.turn
         mochiGoma_ : Player -> StateAt -> Maybe Type.Pos -> KomaDai
-        mochiGoma_ pl stAt clickedP = case (Debug.log "mochiGoma_ pos" pos) of
+--         mochiGoma_ pl stAt clickedP = case (Debug.log "mochiGoma_ pos" pos) of
+--                        OnBoard _ -> case getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos of
+--                          Just (Chicken, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push Chick (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
+--                          Just (kt, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push kt (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
+--                          otherwise -> case clickedP of
+--                            Just (InHand player _) -> (if player == P1 then gs.mochiGoma1 else gs.mochiGoma2)
+--                                                   |> A.filter (\mG -> (Debug.log "clickedStateAt" stAt) /= Just (mG,player))
+--                            otherwise -> if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2
+        mochiGoma_ pl stAt clickedP = case pos of
                        OnBoard _ -> case getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos of
-                         Just (Chicken, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push Chick (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
-                         Just (kt, opponent_) -> (Debug.log "mochiGoma_ OnBoard" (A.push kt (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)))
+                         Just (Chicken, opponent_) -> A.push Chick (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)
+                         Just (kt, opponent_) -> A.push kt (if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2)
                          otherwise -> case clickedP of
                            Just (InHand player _) -> (if player == P1 then gs.mochiGoma1 else gs.mochiGoma2)
-                                                  |> A.filter (\mG -> (Debug.log "clickedStateAt" stAt) /= Just (mG,player))
+                                                  |> A.filter (\mG -> stAt /= Just (mG,player))
                            otherwise -> if pl == P1 then gs.mochiGoma1 else gs.mochiGoma2
         -- 指定したPosの駒が動かせる場合、その移動可能範囲にエフェクトをつける
         selected : Type.Pos -> GameState -> Board
@@ -309,8 +319,15 @@ justOrCrash errStr m = case m of
   Nothing -> Debug.crash errStr
 
 
-port exGameState : Signal ExGameState
-port exGameState = toExGameState <~ gameState
+-- port exGameState : Signal ExGameState
+-- port exGameState = toExGameState <~ gameState
 
-port inGameState : Signal ExGameState
+port exClickedPos : Signal ExPos
+port exClickedPos = toExPos <~ subscribe clickMessage
+
+-- port exClickedPos : Signal ExPos
+-- port exClickedPos = (toExGameState >> clickedPosition) <~ gameState
+
+-- port inGameState : Signal ExGameState
+port inClickedPos : Signal ExPos
 

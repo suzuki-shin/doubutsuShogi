@@ -36,9 +36,11 @@
   , mochiGoma1 : []
   , mochiGoma2 : []
    }
-    elmModule = Elm.embed(Elm.Main, mainDiv, {inGameState: initGs});
+//    elmModule = Elm.embed(Elm.Main, mainDiv, {inGameState: initGs});
+    elmModule = Elm.embed(Elm.Main, mainDiv, {inClickedPos: {typ:"Pos", label:"OnBoard", x:0, y:0, player:{typ:"Player", label:"P1"}, n:-1}});
    /* elmModule.ports.arws.subscribe(hoge); */
-    elmModule.ports.exGameState.subscribe(hoge);
+//   elmModule.ports.exGameState.subscribe(hoge);
+    elmModule.ports.exClickedPos.subscribe(hoge);
     console.log("hey");
    /* sendText(initGs); */
    function hoge(a) {
@@ -52,17 +54,8 @@ chatDataStore.on("push",function(data){
      console.log('data.value.message');
      console.log(data.value.message);
      var a = data.value.message;
-//     a.board = board1;
-//     a.clickedPosition = null;
-//     a.mochiGoma1 = [];
-//     a.mochiGoma1 = [{typ : "KomaType", label : "Chick"}];
-//     a.mochiGoma2 = [];
-     console.log('initGs');
-     console.log(initGs);
-//     elmModule.ports.inSignal.send({x:3,y:4});
-     elmModule.ports.inGameState.send(a);
-     /* elmModule.ports.inGameState.send(data.value.message); */
-     /* addText(data.value.message); */
+     elmModule.ports.inClickedPos.send(a);
+   /* elmModule.ports.inGameState.send(a); */
 });
   </script>
 
