@@ -1,0 +1,47 @@
+<html>
+
+  <head>
+    <title>どうぶつしょうぎ</title>
+    <script type="text/javascript" src="elm.js"></script>
+  </head>
+
+  <body>
+    <!-- <h1>どうぶつしょうぎ</h1> -->
+    <ul id="board"></ul>
+    <div id="main" style="width:50%; height:400px;"></div>
+
+    <ul id="board"></ul>
+  </body>
+
+  <script src="http://cdn.mlkcca.com/v0.2.8/milkcocoa.js"></script>
+  <script src="milkcocoa_sample.js"></script>
+  <script type="text/javascript">
+    var mainDiv = document.getElementById('main');
+    var board1 = [
+       {  typ:"Cel"
+        , pos:{typ:"Pos", label:"OnBoard", x:0, y:0, player: {typ:"Player", label:"P1"}, n: -1}
+        , stateAt:{typ:"Stateat", komaType:{typ:"Komatype",label:"Lion"}, player:{typ:"Player", label:"P1"}}
+        , effect:{typ:"Effect", label:"NoEffect"}
+          }
+     ];
+    var initGs = {
+    typ : "GameState"
+  , board : board1
+  , turn : {typ: "Player", label: "P1"}
+  , playState : {typ: "PlayState", label: "Neutral"}
+  , result : {typ: "GameResult", label: "Unfinished", player: {typ: "Player", label: "P1"}}
+  , clickedStateAt : null
+  , clickedPosition : null
+  , movablePositions : []
+  , mochiGoma1 : []
+  , mochiGoma2 : []
+   }
+    elmModule = Elm.embed(Elm.Main, mainDiv, {inClickedPos: {typ:"Pos", label:"OnBoard", x:0, y:0, player:{typ:"Player", label:"P1"}, n:-1}});
+    elmModule.ports.exClickedPos.subscribe(sendText);
+
+ds.on("push",function(data){
+     elmModule.ports.inClickedPos.send(data.value.message);
+});
+  </script>
+
+</html>
