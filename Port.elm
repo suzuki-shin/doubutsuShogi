@@ -102,7 +102,7 @@ fromExBoard : ExBoard -> Board
 fromExBoard = L.map fromExCel
 
 toExKomaDai : KomaDai -> ExKomaDai
--- toExKomaDai = A.map toExKomaType
+-- toExKomaDai = A.map toExKomaType -- これだとなぜか Runtime error
 toExKomaDai kd = if
     | kd == A.empty -> A.fromList []
     | otherwise -> A.map toExKomaType kd
@@ -149,9 +149,7 @@ toExGameState gs = {
   }
 
 fromExGameState : ExGameState -> GameState
-fromExGameState ex =
-    let a = "aa" -- Debug.log "fromExGameState ex: " ex
-    in {
+fromExGameState ex = {
     board = fromExBoard ex.board
   , turn = fromExPlayer ex.turn
   , playState = fromExPlayState ex.playState

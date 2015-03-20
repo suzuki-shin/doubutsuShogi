@@ -1,29 +1,19 @@
 var milkcocoa = new MilkCocoa("https://io-bi74939df.mlkcca.com");
-var chatDataStore = milkcocoa.dataStore("chat");
-var textArea, board;
-window.onload = function(){
-  textArea = document.getElementById("msg");
-  board = document.getElementById("board");
-}
+var ds = milkcocoa.dataStore("doubutsuShogi");
+// var textArea, board;
+// window.onload = function(){
+//   textArea = document.getElementById("msg");
+//   board = document.getElementById("board");
+// }
 
 function clickEvent(){
-  var text = textArea.value;
+//  var text = textArea.value;
   sendText(text);
 }
 
 function sendText(text){
-  chatDataStore.push({message : text},function(data){
+  ds.push({message : text},function(data){
     console.log("送信完了!");
-    textArea.value = "";
+//    textArea.value = "";
   });
-}
-
-// chatDataStore.on("push",function(data){
-//   addText('x:' + data.value.message.clickedPosition.x + ', y:' + data.value.message.clickedPosition.y);
-// });
-
-function addText(text){
-  var msgDom = document.createElement("li");
-  msgDom.innerHTML = text;
-  board.insertBefore(msgDom, board.firstChild);
 }

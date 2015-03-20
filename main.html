@@ -38,17 +38,8 @@
    }
     elmModule = Elm.embed(Elm.Main, mainDiv, {inClickedPos: {typ:"Pos", label:"OnBoard", x:0, y:0, player:{typ:"Player", label:"P1"}, n:-1}});
     elmModule.ports.exClickedPos.subscribe(sendText);
-   /* function hoge(a) {
-   console.log('hoge');
-   console.log(a);
-   sendText(a);
-   } */
 
-chatDataStore.on("push",function(data){
-     /* console.log('push');
-     console.log('data.value.message');
-     console.log(data.value.message);
-     var a = data.value.message; */
+ds.on("push",function(data){
      elmModule.ports.inClickedPos.send(data.value.message);
 });
   </script>
