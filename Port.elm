@@ -133,10 +133,7 @@ fromExPlayState ex = if
     | ex.label == "Selected" -> Selected
 
 toExGameState : GameState -> ExGameState
--- toExGameState gs = {
-toExGameState gs =
-    let a = "aaa" -- Debug.log "toExGameState gs" gs
-    in {
+toExGameState gs = {
     typ = "GameState"
   , board = toExBoard gs.board
   , turn = toExPlayer gs.turn
