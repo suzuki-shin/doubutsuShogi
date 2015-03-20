@@ -102,7 +102,10 @@ fromExBoard : ExBoard -> Board
 fromExBoard = L.map fromExCel
 
 toExKomaDai : KomaDai -> ExKomaDai
-toExKomaDai = A.map toExKomaType
+-- toExKomaDai = A.map toExKomaType
+toExKomaDai kd = if
+    | kd == A.empty -> A.fromList []
+    | otherwise -> A.map toExKomaType kd
 
 fromExKomaDai : ExKomaDai -> KomaDai
 fromExKomaDai = A.map fromExKomaType
@@ -144,7 +147,7 @@ toExGameState gs =
                         Just pos -> Just (toExPos pos)
                         Nothing -> Nothing
   , movablePositions = L.map toExPos gs.movablePositions
-  , mochiGoma1 = toExKomaDai gs.mochiGoma1
+  , mochiGoma1 = Debug.log "mochiGoma1 toExKomaDai" (toExKomaDai (Debug.log "mochiGoma1 gs.mochiGoma1"gs.mochiGoma1))
   , mochiGoma2 = toExKomaDai gs.mochiGoma2
   }
 

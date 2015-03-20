@@ -40,8 +40,9 @@
    /* elmModule.ports.arws.subscribe(hoge); */
     elmModule.ports.exGameState.subscribe(hoge);
     console.log("hey");
-    sendText(initGs);
+   /* sendText(initGs); */
    function hoge(a) {
+   console.log('hoge');
    console.log(a);
    sendText(a);
    }
@@ -51,8 +52,11 @@ chatDataStore.on("push",function(data){
      console.log('data.value.message');
      console.log(data.value.message);
      var a = data.value.message;
-     a.board = board1;
-     a.clickedPosition = null;
+//     a.board = board1;
+//     a.clickedPosition = null;
+//     a.mochiGoma1 = [];
+//     a.mochiGoma1 = [{typ : "KomaType", label : "Chick"}];
+//     a.mochiGoma2 = [];
      console.log('initGs');
      console.log(initGs);
 //     elmModule.ports.inSignal.send({x:3,y:4});
