@@ -91,6 +91,9 @@ main =
       komaElement : KomaType -> Player -> Element
       komaElement kt player = komaImg kt player |> fittedImage komaSize.x komaSize.y
 
+      komaElementAtKomaDai : KomaType -> Player -> Element
+      komaElementAtKomaDai kt player = komaImg kt player |> fittedImage (round (toFloat komaSize.x * 0.5)) (round (toFloat komaSize.y * 0.5))
+
       -- [((0,0), 'A'), ((1,0), 'B'), ((0,1), 'C'), ((1,1), 'D')] みたいな "Posが1要素目の2要素タプルのリスト" データを
       -- [ ['A','B']
       --  ,['C','D']] みたいな "二次元リスト" データに変換する
@@ -125,7 +128,7 @@ main =
       toClickable pos = clickable (send clickMessage pos)
 
       komaDaiToElement : Player -> KomaDai -> Element
-      komaDaiToElement pl = A.toIndexedList >> L.map (\(i, kt) -> toClickable (InHand pl i) (komaElement kt pl)) >> flow right
+      komaDaiToElement pl = A.toIndexedList >> L.map (\(i, kt) -> toClickable (InHand pl i) (komaElementAtKomaDai kt pl)) >> flow right
 
       turnMessage : GameState -> Element
       turnMessage gs = case gs.result of
@@ -135,16 +138,12 @@ main =
       -- GameStateの更新を受け取って描画する
       view : GameState -> Element
       view gs = flow right [
---       view gs =
---           let a = Debug.log "view gs" gs
---           in flow right [
                   flow down [
                       turnMessage gs
-                    , boardToElement gs.board
---                     , T.asText gs
-                  ] |> width (boardSize.x * komaSize.x)
-                , flow down [
-                      komaDaiToElement P2 gs.mochiGoma2
+                    , komaDaiToElement P2 gs.mochiGoma2
+                    , spacer 10 10
+                    , boardToElement gs.board |> width (boardSize.x * komaSize.x)
+                    , spacer 10 10
                     , komaDaiToElement P1 gs.mochiGoma1
                   ]
                 ]
