@@ -1,9 +1,9 @@
-module Port where
+module DoubutsuShogi.Port where
 
 import Array as A
 import Array (Array)
 import List as L
-import Type (..)
+import DoubutsuShogi.Type (..)
 import Debug
 
 type alias ExPos = {typ : String, label : String, x : Int, y : Int, player : ExPlayer, n : Int}

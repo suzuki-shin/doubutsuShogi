@@ -1,4 +1,4 @@
-module Type where
+module DoubutsuShogi.Type where
 
 import Array (Array)
 
