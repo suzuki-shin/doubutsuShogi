@@ -1,8 +1,10 @@
 import Graphics.Element (..)
+import Graphics.Collage (rotate, collage, toForm)
 import Color (..)
 import List as L
 import Graphics.Input (clickable)
 import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
+import Keyboard (space)
 import Array as A
 import Text as T
 import Debug
@@ -78,24 +80,29 @@ main =
                              Win p -> flow right [p |> show |> T.plainText,  T.plainText "の勝ちです"]
                              otherwise -> flow right [gs.turn |> show |> T.plainText, T.plainText "の手番です"]
 
+      reverseBoard : Bool -> Element -> Element
+      reverseBoard reverseFlg e =
+          let (w,h) = sizeOf e
+          in if reverseFlg then collage w h [e |> toForm |> (rotate (degrees 180))] else e
+
       -- GameStateの更新を受け取って描画する
-      view : GameState -> Element
-      view gs = flow right [
-                  flow down [
+      view : Bool -> GameState -> Element
+      view isReverse gs = flow down [
                       turnMessage gs
-                    , komaDaiToElement P2 gs.mochiGoma2
-                    , spacer 10 10
-                    , boardToElement gs.board |> width (boardSize.x * komaSize.x)
-                    , spacer 10 10
-                    , komaDaiToElement P1 gs.mochiGoma1
-                  ]
+                    , T.plainText <| if isReverse then "　▽後手　▲先手" else "　▲先手　▽後手"
+                    , flow down [
+                        komaDaiToElement P2 gs.mochiGoma2
+                      , spacer 10 10
+                      , boardToElement gs.board |> width (boardSize.x * komaSize.x)
+                      , spacer 10 10
+                      , komaDaiToElement P1 gs.mochiGoma1
+                      ] |> reverseBoard isReverse
                 ]
 
-   in view <~ gameState (fromExPos <~ inClickedPos)
+   in view <~ space ~ gameState (fromExPos <~ inClickedPos)
 
 
 port exClickedPos : Signal ExPos
 port exClickedPos = toExPos <~ subscribe clickMessage
 
 port inClickedPos : Signal ExPos
-
