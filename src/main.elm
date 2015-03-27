@@ -99,7 +99,10 @@ main =
                       ] |> reverseBoard isReverse
                 ]
 
-   in view <~ space ~ gameState (fromExPos <~ inClickedPos)
+   in view <~ reverseFlg ~ gameState (fromExPos <~ inClickedPos)
+
+reverseFlg : Signal Bool
+reverseFlg = foldp (\s acc -> if s then not acc else acc) False space
 
 
 port exClickedPos : Signal ExPos
