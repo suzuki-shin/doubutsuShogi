@@ -14,7 +14,9 @@ import DoubutsuShogi.Type (..)
 import DoubutsuShogi.Port (..)
 import DoubutsuShogi (..)
 
-main =
+import Milkcocoa as MC
+
+main2 =
   let
       komaImg : KomaType -> Player -> String
       komaImg kt player =
@@ -109,3 +111,8 @@ port exClickedPos : Signal ExPos
 port exClickedPos = toExPos <~ subscribe clickMessage
 
 port inClickedPos : Signal ExPos
+
+main =
+    let mc = MC.milkcocoa "io-bi74939df"
+        ds = MC.dataStore "doubutsuShogi" mc
+    in T.plainText <| "UUU" -- ds
