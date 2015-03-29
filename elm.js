@@ -4624,7 +4624,7 @@ Elm.Main.make = function (_elm) {
          return A2($Graphics$Element.flow,
          $Graphics$Element.down,
          _L.fromArray([turnMessage(gs)
-                      ,$Text.plainText(isReverse ? "　▽後手　▲先手" : "　▼先手　△後手")
+                      ,$Text.plainText(isReverse ? "　▼先手　△後手" : "　▽後手　▲先手")
                       ,reverseBoard(isReverse)(A2($Graphics$Element.flow,
                       $Graphics$Element.down,
                       _L.fromArray([A2(komaDaiToElement,
