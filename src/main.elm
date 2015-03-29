@@ -89,7 +89,7 @@ main =
       view : Bool -> GameState -> Element
       view isReverse gs = flow down [
                       turnMessage gs
-                    , T.plainText <| if isReverse then "　▽後手　▲先手" else "　▼先手　△後手"
+                    , T.plainText <| if isReverse then "　▼先手　△後手" else "　▲先手　▽後手"
                     , flow down [
                         komaDaiToElement P2 gs.mochiGoma2
                       , spacer 10 10

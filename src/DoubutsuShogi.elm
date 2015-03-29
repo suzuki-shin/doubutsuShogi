@@ -163,9 +163,21 @@ updateGameState pos gs =
         cancelSelect : Board -> Board
         cancelSelect = L.map (\(p,s,e) -> (p,s, NoEffect))
 
+        isWin : GameState -> Bool
+        isWin gs =
+            let isTsumi = getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos == Just (Lion ,opponent_)
+                isTry = case gs.turn of
+                          P1 -> gs.clickedStateAt == Just (Lion, P1) && case pos of
+                                                                          OnBoard (_,0) -> True
+                                                                          otherwise -> False
+                          P2 -> gs.clickedStateAt == Just (Lion, P2) && case (Debug.log "pos" pos) of
+                                                                          OnBoard (_,y) -> y == boardSize.y - 1
+                                                                          otherwise -> False
+            in isTsumi || isTry
+
     in if | isFinished -> gs
           | isMove -> { gs | playState <- Neutral
-                        , result <- if getStateAt gs.board gs.mochiGoma1 gs.mochiGoma2 pos == Just (Lion ,opponent_) then Win gs.turn else Unfinished
+                        , result <- if isWin gs then Win gs.turn else Unfinished
                         , board <- resetEffect <| updateBoard gs.board [
                                      (justOrCrash "xxx" gs.clickedPosition, Nothing, NoEffect)
                                    , (pos, gs.clickedStateAt, NoEffect) |> \cel -> case gs.clickedPosition of
