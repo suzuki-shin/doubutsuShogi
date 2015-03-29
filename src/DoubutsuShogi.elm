@@ -170,8 +170,8 @@ updateGameState pos gs =
                           P1 -> gs.clickedStateAt == Just (Lion, P1) && case pos of
                                                                           OnBoard (_,0) -> True
                                                                           otherwise -> False
-                          P2 -> gs.clickedStateAt == Just (Lion, P2) && case pos of
-                                                                          OnBoard (_,3) -> True
+                          P2 -> gs.clickedStateAt == Just (Lion, P2) && case (Debug.log "pos" pos) of
+                                                                          OnBoard (_,y) -> y == boardSize.y - 1
                                                                           otherwise -> False
             in isTsumi || isTry
 
