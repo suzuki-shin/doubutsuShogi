@@ -20,6 +20,7 @@
    var milkcocoa = new MilkCocoa("https://io-bi74939df.mlkcca.com");
    var sess = getSess();
    var ds = milkcocoa.dataStore("doubutsuShogi").child(sess);
+   /* ds.query().done(function(data){console.debug(data);}); */
 
    function getSess() {
      return location.search.split('?')[1];
@@ -30,7 +31,7 @@
    }
 
    function sendText(text){
-     ds.push({message : text},function(data){
+     ds.send({message : text},function(data){
        console.log("送信完了!");
      });
    }
@@ -58,7 +59,7 @@
    elmModule = Elm.embed(Elm.Main, mainDiv, {inClickedPos: {typ:"Pos", label:"OnBoard", x:0, y:0, player:{typ:"Player", label:"P1"}, n:-1}});
    elmModule.ports.exClickedPos.subscribe(sendText);
 
-   ds.on("push",function(data){
+   ds.on("send",function(data){
      elmModule.ports.inClickedPos.send(data.value.message);
    });
   </script>
