@@ -1778,6 +1778,1389 @@ Elm.Dict.make = function (_elm) {
                       ,fromList: fromList};
    return _elm.Dict.values;
 };
+Elm.DoubutsuShogi = Elm.DoubutsuShogi || {};
+Elm.DoubutsuShogi.make = function (_elm) {
+   "use strict";
+   _elm.DoubutsuShogi = _elm.DoubutsuShogi || {};
+   if (_elm.DoubutsuShogi.values)
+   return _elm.DoubutsuShogi.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "DoubutsuShogi",
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Dict = Elm.Dict.make(_elm),
+   $DoubutsuShogi$Type = Elm.DoubutsuShogi.Type.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var justOrCrash = F2(function (errStr,
+   m) {
+      return function () {
+         switch (m.ctor)
+         {case "Just": return m._0;
+            case "Nothing":
+            return $Debug.crash(errStr);}
+         _U.badCase($moduleName,
+         "between lines 224 and 226");
+      }();
+   });
+   var updateBoard = F2(function (b,
+   updatedCels) {
+      return function () {
+         var boardFromDict = function (d) {
+            return $List.map(function (_v2) {
+               return function () {
+                  switch (_v2.ctor)
+                  {case "_Tuple2":
+                     switch (_v2._1.ctor)
+                       {case "_Tuple2":
+                          return {ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard(_v2._0)
+                                 ,_1: _v2._1._0
+                                 ,_2: _v2._1._1};}
+                       break;}
+                  _U.badCase($moduleName,
+                  "on line 219, column 62 to 75");
+               }();
+            })($Dict.toList(d));
+         };
+         var xy = function (p) {
+            return function () {
+               switch (p.ctor)
+               {case "OnBoard": return p._0;}
+               _U.badCase($moduleName,
+               "between lines 208 and 210");
+            }();
+         };
+         var onBoardFilter = $List.filter(function (_v10) {
+            return function () {
+               switch (_v10.ctor)
+               {case "_Tuple3":
+                  return function () {
+                       switch (_v10._0.ctor)
+                       {case "InHand": return false;
+                          case "OnBoard": return true;}
+                       _U.badCase($moduleName,
+                       "between lines 204 and 206");
+                    }();}
+               _U.badCase($moduleName,
+               "between lines 204 and 206");
+            }();
+         });
+         var boardToDict = function (b) {
+            return $Dict.fromList($List.map(function (_v19) {
+               return function () {
+                  switch (_v19.ctor)
+                  {case "_Tuple3":
+                     return {ctor: "_Tuple2"
+                            ,_0: xy(_v19._0)
+                            ,_1: {ctor: "_Tuple2"
+                                 ,_0: _v19._1
+                                 ,_1: _v19._2}};}
+                  _U.badCase($moduleName,
+                  "on line 216, column 62 to 74");
+               }();
+            })(onBoardFilter(b)));
+         };
+         var updateOnePos = F2(function (b,
+         _v24) {
+            return function () {
+               switch (_v24.ctor)
+               {case "_Tuple3":
+                  return function () {
+                       switch (_v24._0.ctor)
+                       {case "OnBoard":
+                          return boardFromDict(A2($Dict.update,
+                            _v24._0._0,
+                            function (_v31) {
+                               return function () {
+                                  return $Maybe.Just({ctor: "_Tuple2"
+                                                     ,_0: _v24._1
+                                                     ,_1: _v24._2});
+                               }();
+                            })(boardToDict(b)));}
+                       return b;
+                    }();}
+               _U.badCase($moduleName,
+               "between lines 211 and 215");
+            }();
+         });
+         return A3($List.foldl,
+         F2(function (_v33,b$) {
+            return function () {
+               switch (_v33.ctor)
+               {case "_Tuple3":
+                  return A2(updateOnePos,
+                    b$,
+                    {ctor: "_Tuple3"
+                    ,_0: _v33._0
+                    ,_1: _v33._1
+                    ,_2: _v33._2});}
+               _U.badCase($moduleName,
+               "on line 221, column 30 to 52");
+            }();
+         }),
+         b,
+         updatedCels);
+      }();
+   });
+   var nari = function (cel) {
+      return function () {
+         switch (cel.ctor)
+         {case "_Tuple3":
+            switch (cel._0.ctor)
+              {case "OnBoard":
+                 switch (cel._0._0.ctor)
+                   {case "_Tuple2":
+                      switch (cel._0._0._1)
+                        {case 0: switch (cel._1.ctor)
+                             {case "Just":
+                                switch (cel._1._0.ctor)
+                                  {case "_Tuple2":
+                                     switch (cel._1._0._0.ctor)
+                                       {case "Chick":
+                                          switch (cel._1._0._1.ctor)
+                                            {case "P1":
+                                               return {ctor: "_Tuple3"
+                                                      ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                                       ,_0: cel._0._0._0
+                                                                                       ,_1: 0})
+                                                      ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                                       ,_0: $DoubutsuShogi$Type.Chicken
+                                                                       ,_1: $DoubutsuShogi$Type.P1})
+                                                      ,_2: cel._2};}
+                                            break;}
+                                       break;}
+                                  break;}
+                             break;
+                           case 3: switch (cel._1.ctor)
+                             {case "Just":
+                                switch (cel._1._0.ctor)
+                                  {case "_Tuple2":
+                                     switch (cel._1._0._0.ctor)
+                                       {case "Chick":
+                                          switch (cel._1._0._1.ctor)
+                                            {case "P2":
+                                               return {ctor: "_Tuple3"
+                                                      ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                                       ,_0: cel._0._0._0
+                                                                                       ,_1: 3})
+                                                      ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                                       ,_0: $DoubutsuShogi$Type.Chicken
+                                                                       ,_1: $DoubutsuShogi$Type.P2})
+                                                      ,_2: cel._2};}
+                                            break;}
+                                       break;}
+                                  break;}
+                             break;}
+                        break;}
+                   break;}
+              break;}
+         return cel;
+      }();
+   };
+   var opponent = function (p) {
+      return _U.eq(p,
+      $DoubutsuShogi$Type.P1) ? $DoubutsuShogi$Type.P2 : $DoubutsuShogi$Type.P1;
+   };
+   var emptyPoss = function ($) {
+      return $List.map(function (_v58) {
+         return function () {
+            switch (_v58.ctor)
+            {case "_Tuple3":
+               return _v58._0;}
+            _U.badCase($moduleName,
+            "on line 114, column 97 to 98");
+         }();
+      })($List.filter(function (_v51) {
+         return function () {
+            switch (_v51.ctor)
+            {case "_Tuple3":
+               return _U.eq(_v51._1,
+                 $Maybe.Nothing) && function () {
+                    switch (_v51._0.ctor)
+                    {case "OnBoard": return true;}
+                    return false;
+                 }();}
+            _U.badCase($moduleName,
+            "between lines 112 and 114");
+         }();
+      })($));
+   };
+   var possesOf = function (player) {
+      return function ($) {
+         return $List.map(function (_v72) {
+            return function () {
+               switch (_v72.ctor)
+               {case "_Tuple3":
+                  return _v72._0;}
+               _U.badCase($moduleName,
+               "on line 108, column 93 to 94");
+            }();
+         })($List.filter(function (_v63) {
+            return function () {
+               switch (_v63.ctor)
+               {case "_Tuple3":
+                  return function () {
+                       switch (_v63._1.ctor)
+                       {case "Just":
+                          switch (_v63._1._0.ctor)
+                            {case "_Tuple2":
+                               return _U.eq(_v63._1._0._1,
+                                 player);}
+                            break;}
+                       return false;
+                    }();}
+               _U.badCase($moduleName,
+               "between lines 106 and 108");
+            }();
+         })($));
+      };
+   };
+   var isOwn = F3(function (player,
+   board,
+   pos) {
+      return function () {
+         switch (pos.ctor)
+         {case "InHand":
+            return _U.eq(player,pos._0);
+            case "OnBoard":
+            return A2($List.member,
+              pos,
+              A2(possesOf,player,board));}
+         _U.badCase($moduleName,
+         "between lines 118 and 120");
+      }();
+   });
+   var movablePosInHand = function (b) {
+      return emptyPoss(b);
+   };
+   var getAt = F4(function (b,
+   mochiG1,
+   mochiG2,
+   p) {
+      return function () {
+         var getAtInHand = F3(function (mochiG,
+         player,
+         n) {
+            return function () {
+               var _v81 = A2($Array.get,
+               n,
+               mochiG);
+               switch (_v81.ctor)
+               {case "Just":
+                  return $Maybe.Just({ctor: "_Tuple2"
+                                     ,_0: _v81._0
+                                     ,_1: player});
+                  case "Nothing":
+                  return $Maybe.Nothing;}
+               _U.badCase($moduleName,
+               "between lines 53 and 56");
+            }();
+         });
+         var getAtOnBoard = F2(function (b,
+         p) {
+            return function () {
+               var _v83 = A2($List.filter,
+               function (_v86) {
+                  return function () {
+                     switch (_v86.ctor)
+                     {case "_Tuple3":
+                        return _U.eq(_v86._0,p);}
+                     _U.badCase($moduleName,
+                     "on line 49, column 56 to 63");
+                  }();
+               },
+               b);
+               switch (_v83.ctor)
+               {case "::":
+                  switch (_v83._1.ctor)
+                    {case "[]": return _v83._0;}
+                    break;}
+               return {ctor: "_Tuple3"
+                      ,_0: p
+                      ,_1: $Maybe.Nothing
+                      ,_2: $DoubutsuShogi$Type.NoEffect};
+            }();
+         });
+         return function () {
+            switch (p.ctor)
+            {case "InHand":
+               return function (stAt) {
+                    return {ctor: "_Tuple3"
+                           ,_0: p
+                           ,_1: stAt
+                           ,_2: $DoubutsuShogi$Type.NoEffect};
+                 }(A3(getAtInHand,
+                 _U.eq(p._0,
+                 $DoubutsuShogi$Type.P1) ? mochiG1 : mochiG2,
+                 p._0,
+                 p._1));
+               case "OnBoard":
+               return A2(getAtOnBoard,b,p);}
+            _U.badCase($moduleName,
+            "between lines 56 and 58");
+         }();
+      }();
+   });
+   var clickMessage = $Signal.channel($DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 0
+                                                                  ,_1: 0}));
+   var initBoard = _L.fromArray([{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 0
+                                                                  ,_1: 0})
+                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                  ,_0: $DoubutsuShogi$Type.Giraffe
+                                                  ,_1: $DoubutsuShogi$Type.P2})
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 1
+                                                                  ,_1: 0})
+                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                  ,_0: $DoubutsuShogi$Type.Lion
+                                                  ,_1: $DoubutsuShogi$Type.P2})
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 2
+                                                                  ,_1: 0})
+                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                  ,_0: $DoubutsuShogi$Type.Elephant
+                                                  ,_1: $DoubutsuShogi$Type.P2})
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 0
+                                                                  ,_1: 1})
+                                 ,_1: $Maybe.Nothing
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 1
+                                                                  ,_1: 1})
+                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                  ,_0: $DoubutsuShogi$Type.Chick
+                                                  ,_1: $DoubutsuShogi$Type.P2})
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 2
+                                                                  ,_1: 1})
+                                 ,_1: $Maybe.Nothing
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 0
+                                                                  ,_1: 2})
+                                 ,_1: $Maybe.Nothing
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 1
+                                                                  ,_1: 2})
+                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                  ,_0: $DoubutsuShogi$Type.Chick
+                                                  ,_1: $DoubutsuShogi$Type.P1})
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 2
+                                                                  ,_1: 2})
+                                 ,_1: $Maybe.Nothing
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 0
+                                                                  ,_1: 3})
+                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                  ,_0: $DoubutsuShogi$Type.Elephant
+                                                  ,_1: $DoubutsuShogi$Type.P1})
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 1
+                                                                  ,_1: 3})
+                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                  ,_0: $DoubutsuShogi$Type.Lion
+                                                  ,_1: $DoubutsuShogi$Type.P1})
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}
+                                ,{ctor: "_Tuple3"
+                                 ,_0: $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                                                  ,_0: 2
+                                                                  ,_1: 3})
+                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
+                                                  ,_0: $DoubutsuShogi$Type.Giraffe
+                                                  ,_1: $DoubutsuShogi$Type.P1})
+                                 ,_2: $DoubutsuShogi$Type.NoEffect}]);
+   var initGameState = {_: {}
+                       ,board: initBoard
+                       ,clickedPosition: $Maybe.Nothing
+                       ,clickedStateAt: $Maybe.Nothing
+                       ,mochiGoma1: $Array.empty
+                       ,mochiGoma2: $Array.empty
+                       ,movablePositions: _L.fromArray([])
+                       ,playState: $DoubutsuShogi$Type.Neutral
+                       ,result: $DoubutsuShogi$Type.Unfinished
+                       ,turn: $DoubutsuShogi$Type.P1};
+   var komaSize = {_: {}
+                  ,x: 100
+                  ,y: 100};
+   var boardSize = {_: {}
+                   ,x: 3
+                   ,y: 4};
+   var isOnBoard = F2(function (b,
+   _v95) {
+      return function () {
+         switch (_v95.ctor)
+         {case "_Tuple2":
+            return _U.cmp(0,
+              _v95._0) < 1 && (_U.cmp(_v95._0,
+              boardSize.x - 1) < 1 && (_U.cmp(0,
+              _v95._1) < 1 && _U.cmp(_v95._1,
+              boardSize.y - 1) < 1));}
+         _U.badCase($moduleName,
+         "on line 77, column 22 to 92");
+      }();
+   });
+   var movablePosOnBoard = F2(function (b,
+   _v99) {
+      return function () {
+         switch (_v99.ctor)
+         {case "_Tuple2":
+            switch (_v99._0.ctor)
+              {case "_Tuple2":
+                 return function () {
+                      var movableArea = F2(function (kt,
+                      pl) {
+                         return function () {
+                            switch (kt.ctor)
+                            {case "Chick":
+                               return _L.fromArray([{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0
+                                                    ,_1: _U.eq(pl,
+                                                    $DoubutsuShogi$Type.P1) ? _v99._0._1 - 1 : _v99._0._1 + 1}]);
+                               case "Chicken":
+                               return A2($Basics._op["++"],
+                                 _L.fromArray([{ctor: "_Tuple2"
+                                               ,_0: _v99._0._0
+                                               ,_1: _v99._0._1 + 1}
+                                              ,{ctor: "_Tuple2"
+                                               ,_0: _v99._0._0
+                                               ,_1: _v99._0._1 - 1}
+                                              ,{ctor: "_Tuple2"
+                                               ,_0: _v99._0._0 + 1
+                                               ,_1: _v99._0._1}
+                                              ,{ctor: "_Tuple2"
+                                               ,_0: _v99._0._0 - 1
+                                               ,_1: _v99._0._1}]),
+                                 _U.eq(pl,
+                                 $DoubutsuShogi$Type.P1) ? _L.fromArray([{ctor: "_Tuple2"
+                                                                         ,_0: _v99._0._0 - 1
+                                                                         ,_1: _v99._0._1 - 1}
+                                                                        ,{ctor: "_Tuple2"
+                                                                         ,_0: _v99._0._0 + 1
+                                                                         ,_1: _v99._0._1 - 1}]) : _L.fromArray([{ctor: "_Tuple2"
+                                                                                                                ,_0: _v99._0._0 - 1
+                                                                                                                ,_1: _v99._0._1 + 1}
+                                                                                                               ,{ctor: "_Tuple2"
+                                                                                                                ,_0: _v99._0._0 + 1
+                                                                                                                ,_1: _v99._0._1 + 1}]));
+                               case "Elephant":
+                               return _L.fromArray([{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 + 1
+                                                    ,_1: _v99._0._1 + 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 - 1
+                                                    ,_1: _v99._0._1 + 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 - 1
+                                                    ,_1: _v99._0._1 - 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 + 1
+                                                    ,_1: _v99._0._1 - 1}]);
+                               case "Giraffe":
+                               return _L.fromArray([{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0
+                                                    ,_1: _v99._0._1 + 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0
+                                                    ,_1: _v99._0._1 - 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 + 1
+                                                    ,_1: _v99._0._1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 - 1
+                                                    ,_1: _v99._0._1}]);
+                               case "Lion":
+                               return _L.fromArray([{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 - 1
+                                                    ,_1: _v99._0._1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0
+                                                    ,_1: _v99._0._1 - 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 + 1
+                                                    ,_1: _v99._0._1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0
+                                                    ,_1: _v99._0._1 + 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 + 1
+                                                    ,_1: _v99._0._1 + 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 + 1
+                                                    ,_1: _v99._0._1 - 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 - 1
+                                                    ,_1: _v99._0._1 + 1}
+                                                   ,{ctor: "_Tuple2"
+                                                    ,_0: _v99._0._0 - 1
+                                                    ,_1: _v99._0._1 - 1}]);}
+                            _U.badCase($moduleName,
+                            "between lines 94 and 100");
+                         }();
+                      });
+                      var filterFunc = F2(function (pl,
+                      xy) {
+                         return A2(isOnBoard,
+                         b,
+                         xy) && $Basics.not(A2($List.member,
+                         $DoubutsuShogi$Type.OnBoard(xy),
+                         A2(possesOf,pl,b)));
+                      });
+                      return function () {
+                         switch (_v99._1.ctor)
+                         {case "Just":
+                            switch (_v99._1._0.ctor)
+                              {case "_Tuple2":
+                                 return $List.map($DoubutsuShogi$Type.OnBoard)($List.filter(filterFunc(_v99._1._0._1))(A2(movableArea,
+                                   _v99._1._0._0,
+                                   _v99._1._0._1)));}
+                              break;
+                            case "Nothing":
+                            return _L.fromArray([]);}
+                         _U.badCase($moduleName,
+                         "between lines 100 and 102");
+                      }();
+                   }();}
+              break;}
+         _U.badCase($moduleName,
+         "between lines 91 and 102");
+      }();
+   });
+   var movablePos = F2(function (b,
+   _v110) {
+      return function () {
+         switch (_v110.ctor)
+         {case "_Tuple2":
+            return function () {
+                 switch (_v110._0.ctor)
+                 {case "InHand":
+                    return movablePosInHand(b);
+                    case "OnBoard":
+                    return A2(movablePosOnBoard,
+                      b,
+                      {ctor: "_Tuple2"
+                      ,_0: _v110._0._0
+                      ,_1: _v110._1});}
+                 _U.badCase($moduleName,
+                 "between lines 82 and 84");
+              }();}
+         _U.badCase($moduleName,
+         "between lines 82 and 84");
+      }();
+   });
+   var updateGameState = F2(function (pos,
+   gs) {
+      return function () {
+         var cancelSelect = $List.map(function (_v118) {
+            return function () {
+               switch (_v118.ctor)
+               {case "_Tuple3":
+                  return {ctor: "_Tuple3"
+                         ,_0: _v118._0
+                         ,_1: _v118._1
+                         ,_2: $DoubutsuShogi$Type.NoEffect};}
+               _U.badCase($moduleName,
+               "on line 164, column 44 to 57");
+            }();
+         });
+         var resetEffect = $List.map(function (_v123) {
+            return function () {
+               switch (_v123.ctor)
+               {case "_Tuple3":
+                  return {ctor: "_Tuple3"
+                         ,_0: _v123._0
+                         ,_1: _v123._1
+                         ,_2: $DoubutsuShogi$Type.NoEffect};}
+               _U.badCase($moduleName,
+               "on line 161, column 43 to 55");
+            }();
+         });
+         var selected = F2(function (p$,
+         gs) {
+            return function () {
+               var _ = A4(getAt,
+               gs.board,
+               gs.mochiGoma1,
+               gs.mochiGoma2,
+               p$);
+               var pos = function () {
+                  switch (_.ctor)
+                  {case "_Tuple3": return _._0;}
+                  _U.badCase($moduleName,
+                  "on line 150, column 30 to 75");
+               }();
+               var st = function () {
+                  switch (_.ctor)
+                  {case "_Tuple3": return _._1;}
+                  _U.badCase($moduleName,
+                  "on line 150, column 30 to 75");
+               }();
+               var player = $Basics.snd(A2(justOrCrash,
+               "yyy",
+               st));
+               var movablePos$ = A2(movablePos,
+               gs.board,
+               {ctor: "_Tuple2"
+               ,_0: p$
+               ,_1: st});
+               var effectedPoss = F2(function (p$,
+               b) {
+                  return A2($List._op["::"],
+                  pos,
+                  movablePos$);
+               });
+               return A3(isOwn,
+               player,
+               gs.board,
+               p$) && $Basics.not($List.isEmpty(movablePos$)) ? A2($List.map,
+               function (_v136) {
+                  return function () {
+                     switch (_v136.ctor)
+                     {case "_Tuple3":
+                        return A2($List.member,
+                          _v136._0,
+                          A2(effectedPoss,
+                          p$,
+                          gs.board)) ? {ctor: "_Tuple3"
+                                       ,_0: _v136._0
+                                       ,_1: _v136._1
+                                       ,_2: $DoubutsuShogi$Type.Transparent} : {ctor: "_Tuple3"
+                                                                               ,_0: _v136._0
+                                                                               ,_1: _v136._1
+                                                                               ,_2: _v136._2};}
+                     _U.badCase($moduleName,
+                     "on line 157, column 43 to 119");
+                  }();
+               },
+               gs.board) : gs.board;
+            }();
+         });
+         var opponent_ = opponent(gs.turn);
+         var isFinished = !_U.eq(gs.result,
+         $DoubutsuShogi$Type.Unfinished);
+         var isMove = _U.eq(gs.playState,
+         $DoubutsuShogi$Type.Selected) && A2($List.member,
+         pos,
+         gs.movablePositions);
+         var isSelect = _U.eq(gs.playState,
+         $DoubutsuShogi$Type.Neutral) && A3(isOwn,
+         gs.turn,
+         gs.board,
+         pos);
+         var getStateAt = F4(function (b,
+         mochiG1,
+         mochiG2,
+         p) {
+            return function (_v141) {
+               return function () {
+                  switch (_v141.ctor)
+                  {case "_Tuple3":
+                     return _v141._1;}
+                  _U.badCase($moduleName,
+                  "on line 127, column 84 to 85");
+               }();
+            }(A4(getAt,
+            b,
+            mochiG1,
+            mochiG2,
+            p));
+         });
+         var mochiGoma_ = F3(function (pl,
+         stAt,
+         clickedP) {
+            return function () {
+               switch (pos.ctor)
+               {case "OnBoard":
+                  return function () {
+                       var _v148 = A4(getStateAt,
+                       gs.board,
+                       gs.mochiGoma1,
+                       gs.mochiGoma2,
+                       pos);
+                       switch (_v148.ctor)
+                       {case "Just":
+                          switch (_v148._0.ctor)
+                            {case "_Tuple2":
+                               switch (_v148._0._0.ctor)
+                                 {case "Chicken":
+                                    return A2($Array.push,
+                                      $DoubutsuShogi$Type.Chick,
+                                      _U.eq(pl,
+                                      $DoubutsuShogi$Type.P1) ? gs.mochiGoma1 : gs.mochiGoma2);}
+                                 return A2($Array.push,
+                                 _v148._0._0,
+                                 _U.eq(pl,
+                                 $DoubutsuShogi$Type.P1) ? gs.mochiGoma1 : gs.mochiGoma2);}
+                            break;}
+                       return function () {
+                          switch (clickedP.ctor)
+                          {case "Just":
+                             switch (clickedP._0.ctor)
+                               {case "InHand":
+                                  return $Array.filter(function (mG) {
+                                       return !_U.eq(stAt,
+                                       $Maybe.Just({ctor: "_Tuple2"
+                                                   ,_0: mG
+                                                   ,_1: clickedP._0._0}));
+                                    })(_U.eq(clickedP._0._0,
+                                    $DoubutsuShogi$Type.P1) ? gs.mochiGoma1 : gs.mochiGoma2);}
+                               break;}
+                          return _U.eq(pl,
+                          $DoubutsuShogi$Type.P1) ? gs.mochiGoma1 : gs.mochiGoma2;
+                       }();
+                    }();}
+               _U.badCase($moduleName,
+               "between lines 139 and 148");
+            }();
+         });
+         var stAt = function (_v156) {
+            return function () {
+               switch (_v156.ctor)
+               {case "_Tuple3":
+                  return _v156._1;}
+               _U.badCase($moduleName,
+               "on line 125, column 85 to 86");
+            }();
+         }(A4(getAt,
+         gs.board,
+         gs.mochiGoma1,
+         gs.mochiGoma2,
+         pos));
+         var mPoss = A2(movablePos,
+         gs.board,
+         {ctor: "_Tuple2"
+         ,_0: pos
+         ,_1: stAt});
+         return isFinished ? gs : isMove ? _U.replace([["playState"
+                                                       ,$DoubutsuShogi$Type.Neutral]
+                                                      ,["result"
+                                                       ,_U.eq(A4(getStateAt,
+                                                       gs.board,
+                                                       gs.mochiGoma1,
+                                                       gs.mochiGoma2,
+                                                       pos),
+                                                       $Maybe.Just({ctor: "_Tuple2"
+                                                                   ,_0: $DoubutsuShogi$Type.Lion
+                                                                   ,_1: opponent_})) ? $DoubutsuShogi$Type.Win(gs.turn) : $DoubutsuShogi$Type.Unfinished]
+                                                      ,["board"
+                                                       ,resetEffect(A2(updateBoard,
+                                                       gs.board,
+                                                       _L.fromArray([{ctor: "_Tuple3"
+                                                                     ,_0: A2(justOrCrash,
+                                                                     "xxx",
+                                                                     gs.clickedPosition)
+                                                                     ,_1: $Maybe.Nothing
+                                                                     ,_2: $DoubutsuShogi$Type.NoEffect}
+                                                                    ,function (cel) {
+                                                                       return function () {
+                                                                          var _v161 = gs.clickedPosition;
+                                                                          switch (_v161.ctor)
+                                                                          {case "Just":
+                                                                             switch (_v161._0.ctor)
+                                                                               {case "OnBoard":
+                                                                                  return nari(cel);}
+                                                                               break;}
+                                                                          return cel;
+                                                                       }();
+                                                                    }({ctor: "_Tuple3"
+                                                                      ,_0: pos
+                                                                      ,_1: gs.clickedStateAt
+                                                                      ,_2: $DoubutsuShogi$Type.NoEffect})])))]
+                                                      ,["turn"
+                                                       ,opponent(gs.turn)]
+                                                      ,["clickedPosition"
+                                                       ,$Maybe.Just(pos)]
+                                                      ,["movablePositions"
+                                                       ,_L.fromArray([])]
+                                                      ,["mochiGoma1"
+                                                       ,_U.eq(gs.turn,
+                                                       $DoubutsuShogi$Type.P1) ? A3(mochiGoma_,
+                                                       $DoubutsuShogi$Type.P1,
+                                                       gs.clickedStateAt,
+                                                       gs.clickedPosition) : gs.mochiGoma1]
+                                                      ,["mochiGoma2"
+                                                       ,_U.eq(gs.turn,
+                                                       $DoubutsuShogi$Type.P2) ? A3(mochiGoma_,
+                                                       $DoubutsuShogi$Type.P2,
+                                                       gs.clickedStateAt,
+                                                       gs.clickedPosition) : gs.mochiGoma2]],
+         gs) : isSelect ? _U.replace([["board"
+                                      ,A2(selected,pos,gs)]
+                                     ,["playState"
+                                      ,$DoubutsuShogi$Type.Selected]
+                                     ,["clickedStateAt"
+                                      ,A4(getStateAt,
+                                      gs.board,
+                                      gs.mochiGoma1,
+                                      gs.mochiGoma2,
+                                      pos)]
+                                     ,["clickedPosition"
+                                      ,$Maybe.Just(pos)]
+                                     ,["movablePositions",mPoss]],
+         gs) : _U.replace([["board"
+                           ,cancelSelect(gs.board)]
+                          ,["playState"
+                           ,$DoubutsuShogi$Type.Neutral]
+                          ,["clickedStateAt"
+                           ,$Maybe.Nothing]
+                          ,["clickedPosition"
+                           ,$Maybe.Just(pos)]
+                          ,["movablePositions"
+                           ,_L.fromArray([])]],
+         gs);
+      }();
+   });
+   var gameState = A2($Signal.foldp,
+   updateGameState,
+   initGameState);
+   var show = function (a) {
+      return function () {
+         switch (a.ctor)
+         {case "P1": return "先手";
+            case "P2": return "後手";}
+         _U.badCase($moduleName,
+         "between lines 19 and 21");
+      }();
+   };
+   _elm.DoubutsuShogi.values = {_op: _op
+                               ,show: show
+                               ,boardSize: boardSize
+                               ,komaSize: komaSize
+                               ,initBoard: initBoard
+                               ,clickMessage: clickMessage
+                               ,getAt: getAt
+                               ,initGameState: initGameState
+                               ,gameState: gameState
+                               ,isOnBoard: isOnBoard
+                               ,movablePos: movablePos
+                               ,movablePosInHand: movablePosInHand
+                               ,movablePosOnBoard: movablePosOnBoard
+                               ,possesOf: possesOf
+                               ,emptyPoss: emptyPoss
+                               ,isOwn: isOwn
+                               ,updateGameState: updateGameState
+                               ,opponent: opponent
+                               ,nari: nari
+                               ,updateBoard: updateBoard
+                               ,justOrCrash: justOrCrash};
+   return _elm.DoubutsuShogi.values;
+};
+Elm.DoubutsuShogi = Elm.DoubutsuShogi || {};
+Elm.DoubutsuShogi.Port = Elm.DoubutsuShogi.Port || {};
+Elm.DoubutsuShogi.Port.make = function (_elm) {
+   "use strict";
+   _elm.DoubutsuShogi = _elm.DoubutsuShogi || {};
+   _elm.DoubutsuShogi.Port = _elm.DoubutsuShogi.Port || {};
+   if (_elm.DoubutsuShogi.Port.values)
+   return _elm.DoubutsuShogi.Port.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "DoubutsuShogi.Port",
+   $Array = Elm.Array.make(_elm),
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $DoubutsuShogi$Type = Elm.DoubutsuShogi.Type.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm);
+   var fromExPlayState = function (ex) {
+      return _U.eq(ex.label,
+      "Neutral") ? $DoubutsuShogi$Type.Neutral : _U.eq(ex.label,
+      "Selected") ? $DoubutsuShogi$Type.Selected : _U.badIf($moduleName,
+      "between lines 131 and 133");
+   };
+   var toExPlayState = function (ps) {
+      return function () {
+         switch (ps.ctor)
+         {case "Neutral": return {_: {}
+                                 ,label: "Neutral"
+                                 ,typ: "PlayState"};
+            case "Selected": return {_: {}
+                                    ,label: "Selected"
+                                    ,typ: "PlayState"};}
+         _U.badCase($moduleName,
+         "between lines 126 and 128");
+      }();
+   };
+   var fromExEffect = function (ex) {
+      return _U.eq(ex.label,
+      "NoEffect") ? $DoubutsuShogi$Type.NoEffect : _U.eq(ex.label,
+      "Transparent") ? $DoubutsuShogi$Type.Transparent : $Debug.crash("fromExEffect error");
+   };
+   var toExEffect = function (ef) {
+      return function () {
+         switch (ef.ctor)
+         {case "NoEffect": return {_: {}
+                                  ,label: "NoEffect"
+                                  ,typ: "Effect"};
+            case "Transparent":
+            return {_: {}
+                   ,label: "Transparent"
+                   ,typ: "Effect"};}
+         _U.badCase($moduleName,
+         "between lines 82 and 84");
+      }();
+   };
+   var fromExKomaType = function (ex) {
+      return function () {
+         var a = ex;
+         return _U.eq(ex.label,
+         "Lion") ? $DoubutsuShogi$Type.Lion : _U.eq(ex.label,
+         "Elephant") ? $DoubutsuShogi$Type.Elephant : _U.eq(ex.label,
+         "Giraffe") ? $DoubutsuShogi$Type.Giraffe : _U.eq(ex.label,
+         "Chick") ? $DoubutsuShogi$Type.Chick : _U.eq(ex.label,
+         "Chicken") ? $DoubutsuShogi$Type.Chicken : _U.badIf($moduleName,
+         "between lines 64 and 69");
+      }();
+   };
+   var fromExKomaDai = $Array.map(fromExKomaType);
+   var toExKomaType = function (kt) {
+      return function () {
+         switch (kt.ctor)
+         {case "Chick": return {_: {}
+                               ,label: "Chick"
+                               ,typ: "KomaType"};
+            case "Chicken": return {_: {}
+                                   ,label: "Chicken"
+                                   ,typ: "KomaType"};
+            case "Elephant": return {_: {}
+                                    ,label: "Elephant"
+                                    ,typ: "KomaType"};
+            case "Giraffe": return {_: {}
+                                   ,label: "Giraffe"
+                                   ,typ: "KomaType"};
+            case "Lion": return {_: {}
+                                ,label: "Lion"
+                                ,typ: "KomaType"};}
+         _U.badCase($moduleName,
+         "between lines 54 and 59");
+      }();
+   };
+   var toExKomaDai = function (kd) {
+      return _U.eq(kd,
+      $Array.empty) ? $Array.fromList(_L.fromArray([])) : A2($Array.map,
+      toExKomaType,
+      kd);
+   };
+   var fromExPlayer = function (ex) {
+      return _U.eq(ex.label,
+      "P1") ? $DoubutsuShogi$Type.P1 : _U.eq(ex.label,
+      "P2") ? $DoubutsuShogi$Type.P2 : $Debug.crash("fromExPlayer error");
+   };
+   var fromExStateAt = function (ex) {
+      return function () {
+         switch (ex.ctor)
+         {case "Just":
+            return $Maybe.Just({ctor: "_Tuple2"
+                               ,_0: fromExKomaType(ex._0.komaType)
+                               ,_1: fromExPlayer(ex._0.player)});
+            case "Nothing":
+            return $Maybe.Nothing;}
+         _U.badCase($moduleName,
+         "between lines 77 and 79");
+      }();
+   };
+   var fromExGameResult = function (ex) {
+      return _U.eq(ex.label,
+      "Unfinished") ? $DoubutsuShogi$Type.Unfinished : _U.eq(ex.label,
+      "Win") ? $DoubutsuShogi$Type.Win(fromExPlayer(ex.player)) : _U.eq(ex.label,
+      "Draw") ? $DoubutsuShogi$Type.Draw : _U.badIf($moduleName,
+      "between lines 120 and 123");
+   };
+   var toExPlayer = function (pl) {
+      return function () {
+         switch (pl.ctor)
+         {case "P1": return {_: {}
+                            ,label: "P1"
+                            ,typ: "Player"};
+            case "P2": return {_: {}
+                              ,label: "P2"
+                              ,typ: "Player"};}
+         _U.badCase($moduleName,
+         "between lines 43 and 45");
+      }();
+   };
+   var toExStateAt = function (st) {
+      return function () {
+         switch (st.ctor)
+         {case "Just":
+            switch (st._0.ctor)
+              {case "_Tuple2":
+                 return $Maybe.Just({_: {}
+                                    ,komaType: toExKomaType(st._0._0)
+                                    ,player: toExPlayer(st._0._1)
+                                    ,typ: "StateAt"});}
+              break;
+            case "Nothing":
+            return $Maybe.Nothing;}
+         _U.badCase($moduleName,
+         "between lines 72 and 74");
+      }();
+   };
+   var toExGameResult = function (gr) {
+      return function () {
+         switch (gr.ctor)
+         {case "Draw": return {_: {}
+                              ,label: "Draw"
+                              ,player: {_: {}
+                                       ,label: "Nothing"
+                                       ,typ: "Player"}
+                              ,typ: "GameResult"};
+            case "Unfinished": return {_: {}
+                                      ,label: "Unfinished"
+                                      ,player: {_: {}
+                                               ,label: "Nothing"
+                                               ,typ: "Player"}
+                                      ,typ: "GameResult"};
+            case "Win": return {_: {}
+                               ,label: "Win"
+                               ,player: toExPlayer(gr._0)
+                               ,typ: "GameResult"};}
+         _U.badCase($moduleName,
+         "between lines 114 and 117");
+      }();
+   };
+   var fromExPos = function (ex) {
+      return function () {
+         var _v12 = ex.label;
+         switch (_v12)
+         {case "InHand":
+            return A2($DoubutsuShogi$Type.InHand,
+              fromExPlayer(ex.player),
+              ex.n);
+            case "OnBoard":
+            return $DoubutsuShogi$Type.OnBoard({ctor: "_Tuple2"
+                                               ,_0: ex.x
+                                               ,_1: ex.y});}
+         _U.badCase($moduleName,
+         "between lines 38 and 40");
+      }();
+   };
+   var fromExCel = function (ex) {
+      return {ctor: "_Tuple3"
+             ,_0: fromExPos(ex.pos)
+             ,_1: fromExStateAt(ex.stateAt)
+             ,_2: fromExEffect(ex.effect)};
+   };
+   var fromExBoard = $List.map(fromExCel);
+   var fromExGameState = function (ex) {
+      return {_: {}
+             ,board: fromExBoard(ex.board)
+             ,clickedPosition: function () {
+                var _v13 = ex.clickedPosition;
+                switch (_v13.ctor)
+                {case "Just":
+                   return $Maybe.Just(fromExPos(_v13._0));
+                   case "Nothing":
+                   return $Maybe.Nothing;}
+                _U.badCase($moduleName,
+                "between lines 158 and 161");
+             }()
+             ,clickedStateAt: fromExStateAt(ex.clickedStateAt)
+             ,mochiGoma1: fromExKomaDai(ex.mochiGoma1)
+             ,mochiGoma2: fromExKomaDai(ex.mochiGoma2)
+             ,movablePositions: A2($List.map,
+             fromExPos,
+             ex.movablePositions)
+             ,playState: fromExPlayState(ex.playState)
+             ,result: fromExGameResult(ex.result)
+             ,turn: fromExPlayer(ex.turn)};
+   };
+   var toExPos = function (pos) {
+      return function () {
+         switch (pos.ctor)
+         {case "InHand": return {_: {}
+                                ,label: "InHand"
+                                ,n: pos._1
+                                ,player: toExPlayer(pos._0)
+                                ,typ: "Pos"
+                                ,x: -1
+                                ,y: -1};
+            case "OnBoard":
+            switch (pos._0.ctor)
+              {case "_Tuple2": return {_: {}
+                                      ,label: "OnBoard"
+                                      ,n: -1
+                                      ,player: {_: {}
+                                               ,label: "Nothing"
+                                               ,typ: "Player"}
+                                      ,typ: "Pos"
+                                      ,x: pos._0._0
+                                      ,y: pos._0._1};}
+              break;}
+         _U.badCase($moduleName,
+         "between lines 33 and 35");
+      }();
+   };
+   var toExCel = function (_v21) {
+      return function () {
+         switch (_v21.ctor)
+         {case "_Tuple3": return {_: {}
+                                 ,effect: toExEffect(_v21._2)
+                                 ,pos: toExPos(_v21._0)
+                                 ,stateAt: toExStateAt(_v21._1)
+                                 ,typ: "Cel"};}
+         _U.badCase($moduleName,
+         "on line 93, column 20 to 96");
+      }();
+   };
+   var toExBoard = $List.map(toExCel);
+   var toExGameState = function (gs) {
+      return {_: {}
+             ,board: toExBoard(gs.board)
+             ,clickedPosition: function () {
+                var _v26 = gs.clickedPosition;
+                switch (_v26.ctor)
+                {case "Just":
+                   return $Maybe.Just(toExPos(_v26._0));
+                   case "Nothing":
+                   return $Maybe.Nothing;}
+                _U.badCase($moduleName,
+                "between lines 143 and 146");
+             }()
+             ,clickedStateAt: toExStateAt(gs.clickedStateAt)
+             ,mochiGoma1: toExKomaDai(gs.mochiGoma1)
+             ,mochiGoma2: toExKomaDai(gs.mochiGoma2)
+             ,movablePositions: A2($List.map,
+             toExPos,
+             gs.movablePositions)
+             ,playState: toExPlayState(gs.playState)
+             ,result: toExGameResult(gs.result)
+             ,turn: toExPlayer(gs.turn)
+             ,typ: "GameState"};
+   };
+   var ExGameState = function (a) {
+      return function (b) {
+         return function (c) {
+            return function (d) {
+               return function (e) {
+                  return function (f) {
+                     return function (g) {
+                        return function (h) {
+                           return function (i) {
+                              return function (j) {
+                                 return {_: {}
+                                        ,board: b
+                                        ,clickedPosition: g
+                                        ,clickedStateAt: f
+                                        ,mochiGoma1: i
+                                        ,mochiGoma2: j
+                                        ,movablePositions: h
+                                        ,playState: d
+                                        ,result: e
+                                        ,turn: c
+                                        ,typ: a};
+                              };
+                           };
+                        };
+                     };
+                  };
+               };
+            };
+         };
+      };
+   };
+   var ExPlayState = F2(function (a,
+   b) {
+      return {_: {}
+             ,label: b
+             ,typ: a};
+   });
+   var ExGameResult = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,label: b
+             ,player: c
+             ,typ: a};
+   });
+   var ExCel = F4(function (a,
+   b,
+   c,
+   d) {
+      return {_: {}
+             ,effect: d
+             ,pos: b
+             ,stateAt: c
+             ,typ: a};
+   });
+   var ExEffect = F2(function (a,
+   b) {
+      return {_: {}
+             ,label: b
+             ,typ: a};
+   });
+   var ExKomaType = F2(function (a,
+   b) {
+      return {_: {}
+             ,label: b
+             ,typ: a};
+   });
+   var ExPlayer = F2(function (a,
+   b) {
+      return {_: {}
+             ,label: b
+             ,typ: a};
+   });
+   var ExPos = F6(function (a,
+   b,
+   c,
+   d,
+   e,
+   f) {
+      return {_: {}
+             ,label: b
+             ,n: f
+             ,player: e
+             ,typ: a
+             ,x: c
+             ,y: d};
+   });
+   _elm.DoubutsuShogi.Port.values = {_op: _op
+                                    ,ExPos: ExPos
+                                    ,ExPlayer: ExPlayer
+                                    ,ExKomaType: ExKomaType
+                                    ,ExEffect: ExEffect
+                                    ,ExCel: ExCel
+                                    ,ExGameResult: ExGameResult
+                                    ,ExPlayState: ExPlayState
+                                    ,ExGameState: ExGameState
+                                    ,toExPos: toExPos
+                                    ,fromExPos: fromExPos
+                                    ,toExPlayer: toExPlayer
+                                    ,fromExPlayer: fromExPlayer
+                                    ,toExKomaType: toExKomaType
+                                    ,fromExKomaType: fromExKomaType
+                                    ,toExStateAt: toExStateAt
+                                    ,fromExStateAt: fromExStateAt
+                                    ,toExEffect: toExEffect
+                                    ,fromExEffect: fromExEffect
+                                    ,toExCel: toExCel
+                                    ,fromExCel: fromExCel
+                                    ,toExBoard: toExBoard
+                                    ,fromExBoard: fromExBoard
+                                    ,toExKomaDai: toExKomaDai
+                                    ,fromExKomaDai: fromExKomaDai
+                                    ,toExGameResult: toExGameResult
+                                    ,fromExGameResult: fromExGameResult
+                                    ,toExPlayState: toExPlayState
+                                    ,fromExPlayState: fromExPlayState
+                                    ,toExGameState: toExGameState
+                                    ,fromExGameState: fromExGameState};
+   return _elm.DoubutsuShogi.Port.values;
+};
+Elm.DoubutsuShogi = Elm.DoubutsuShogi || {};
+Elm.DoubutsuShogi.Type = Elm.DoubutsuShogi.Type || {};
+Elm.DoubutsuShogi.Type.make = function (_elm) {
+   "use strict";
+   _elm.DoubutsuShogi = _elm.DoubutsuShogi || {};
+   _elm.DoubutsuShogi.Type = _elm.DoubutsuShogi.Type || {};
+   if (_elm.DoubutsuShogi.Type.values)
+   return _elm.DoubutsuShogi.Type.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "DoubutsuShogi.Type",
+   $Array = Elm.Array.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm);
+   var GameState = F9(function (a,
+   b,
+   c,
+   d,
+   e,
+   f,
+   g,
+   h,
+   i) {
+      return {_: {}
+             ,board: a
+             ,clickedPosition: f
+             ,clickedStateAt: e
+             ,mochiGoma1: h
+             ,mochiGoma2: i
+             ,movablePositions: g
+             ,playState: c
+             ,result: d
+             ,turn: b};
+   });
+   var Selected = {ctor: "Selected"};
+   var Neutral = {ctor: "Neutral"};
+   var Draw = {ctor: "Draw"};
+   var Win = function (a) {
+      return {ctor: "Win",_0: a};
+   };
+   var Unfinished = {ctor: "Unfinished"};
+   var Transparent = {ctor: "Transparent"};
+   var NoEffect = {ctor: "NoEffect"};
+   var Chicken = {ctor: "Chicken"};
+   var Chick = {ctor: "Chick"};
+   var Giraffe = {ctor: "Giraffe"};
+   var Elephant = {ctor: "Elephant"};
+   var Lion = {ctor: "Lion"};
+   var P2 = {ctor: "P2"};
+   var P1 = {ctor: "P1"};
+   var InHand = F2(function (a,b) {
+      return {ctor: "InHand"
+             ,_0: a
+             ,_1: b};
+   });
+   var OnBoard = function (a) {
+      return {ctor: "OnBoard"
+             ,_0: a};
+   };
+   _elm.DoubutsuShogi.Type.values = {_op: _op
+                                    ,OnBoard: OnBoard
+                                    ,InHand: InHand
+                                    ,P1: P1
+                                    ,P2: P2
+                                    ,Lion: Lion
+                                    ,Elephant: Elephant
+                                    ,Giraffe: Giraffe
+                                    ,Chick: Chick
+                                    ,Chicken: Chicken
+                                    ,NoEffect: NoEffect
+                                    ,Transparent: Transparent
+                                    ,Unfinished: Unfinished
+                                    ,Win: Win
+                                    ,Draw: Draw
+                                    ,Neutral: Neutral
+                                    ,Selected: Selected
+                                    ,GameState: GameState};
+   return _elm.DoubutsuShogi.Type.values;
+};
 Elm.Graphics = Elm.Graphics || {};
 Elm.Graphics.Collage = Elm.Graphics.Collage || {};
 Elm.Graphics.Collage.make = function (_elm) {
@@ -2708,6 +4091,55 @@ Elm.Graphics.Input.make = function (_elm) {
                                 ,clickable: clickable};
    return _elm.Graphics.Input.values;
 };
+Elm.Keyboard = Elm.Keyboard || {};
+Elm.Keyboard.make = function (_elm) {
+   "use strict";
+   _elm.Keyboard = _elm.Keyboard || {};
+   if (_elm.Keyboard.values)
+   return _elm.Keyboard.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   _P = _N.Ports.make(_elm),
+   $moduleName = "Keyboard",
+   $Native$Keyboard = Elm.Native.Keyboard.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var lastPressed = $Native$Keyboard.lastPressed;
+   var keysDown = $Native$Keyboard.keysDown;
+   var meta = $Native$Keyboard.meta;
+   var alt = $Native$Keyboard.alt;
+   var isDown = $Native$Keyboard.isDown;
+   var ctrl = isDown(17);
+   var shift = isDown(16);
+   var space = isDown(32);
+   var enter = isDown(13);
+   var directions = $Native$Keyboard.directions;
+   var arrows = A4(directions,
+   38,
+   40,
+   37,
+   39);
+   var wasd = A4(directions,
+   87,
+   83,
+   65,
+   68);
+   _elm.Keyboard.values = {_op: _op
+                          ,directions: directions
+                          ,arrows: arrows
+                          ,wasd: wasd
+                          ,isDown: isDown
+                          ,alt: alt
+                          ,ctrl: ctrl
+                          ,meta: meta
+                          ,shift: shift
+                          ,space: space
+                          ,enter: enter
+                          ,keysDown: keysDown
+                          ,lastPressed: lastPressed};
+   return _elm.Keyboard.values;
+};
 Elm.List = Elm.List || {};
 Elm.List.make = function (_elm) {
    "use strict";
@@ -2956,15 +4388,17 @@ Elm.Main.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Color = Elm.Color.make(_elm),
    $Debug = Elm.Debug.make(_elm),
-   $Dict = Elm.Dict.make(_elm),
+   $DoubutsuShogi = Elm.DoubutsuShogi.make(_elm),
+   $DoubutsuShogi$Port = Elm.DoubutsuShogi.Port.make(_elm),
+   $DoubutsuShogi$Type = Elm.DoubutsuShogi.Type.make(_elm),
+   $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Graphics$Input = Elm.Graphics.Input.make(_elm),
+   $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Port = Elm.Port.make(_elm),
    $Signal = Elm.Signal.make(_elm),
-   $Text = Elm.Text.make(_elm),
-   $Type = Elm.Type.make(_elm);
+   $Text = Elm.Text.make(_elm);
    var inClickedPos = _P.portIn("inClickedPos",
    _P.incomingSignal(function (v) {
       return typeof v === "object" && "typ" in v && "label" in v && "x" in v && "y" in v && "player" in v && "n" in v ? {_: {}
@@ -2986,319 +4420,6 @@ Elm.Main.make = function (_elm) {
                                                                                                                         v.n)} : _U.badPort("an object with fields \'typ\', \'label\', \'x\', \'y\', \'player\', \'n\'",
       v);
    }));
-   var justOrCrash = F2(function (errStr,
-   m) {
-      return function () {
-         switch (m.ctor)
-         {case "Just": return m._0;
-            case "Nothing":
-            return $Debug.crash(errStr);}
-         _U.badCase($moduleName,
-         "between lines 302 and 304");
-      }();
-   });
-   var updateBoard = F2(function (b,
-   updatedCels) {
-      return function () {
-         var boardFromDict = function (d) {
-            return $List.map(function (_v2) {
-               return function () {
-                  switch (_v2.ctor)
-                  {case "_Tuple2":
-                     switch (_v2._1.ctor)
-                       {case "_Tuple2":
-                          return {ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard(_v2._0)
-                                 ,_1: _v2._1._0
-                                 ,_2: _v2._1._1};}
-                       break;}
-                  _U.badCase($moduleName,
-                  "on line 297, column 62 to 75");
-               }();
-            })($Dict.toList(d));
-         };
-         var xy = function (p) {
-            return function () {
-               switch (p.ctor)
-               {case "OnBoard": return p._0;}
-               _U.badCase($moduleName,
-               "between lines 286 and 288");
-            }();
-         };
-         var onBoardFilter = $List.filter(function (_v10) {
-            return function () {
-               switch (_v10.ctor)
-               {case "_Tuple3":
-                  return function () {
-                       switch (_v10._0.ctor)
-                       {case "InHand": return false;
-                          case "OnBoard": return true;}
-                       _U.badCase($moduleName,
-                       "between lines 282 and 284");
-                    }();}
-               _U.badCase($moduleName,
-               "between lines 282 and 284");
-            }();
-         });
-         var boardToDict = function (b) {
-            return $Dict.fromList($List.map(function (_v19) {
-               return function () {
-                  switch (_v19.ctor)
-                  {case "_Tuple3":
-                     return {ctor: "_Tuple2"
-                            ,_0: xy(_v19._0)
-                            ,_1: {ctor: "_Tuple2"
-                                 ,_0: _v19._1
-                                 ,_1: _v19._2}};}
-                  _U.badCase($moduleName,
-                  "on line 294, column 62 to 74");
-               }();
-            })(onBoardFilter(b)));
-         };
-         var updateOnePos = F2(function (b,
-         _v24) {
-            return function () {
-               switch (_v24.ctor)
-               {case "_Tuple3":
-                  return function () {
-                       switch (_v24._0.ctor)
-                       {case "OnBoard":
-                          return boardFromDict(A2($Dict.update,
-                            _v24._0._0,
-                            function (_v31) {
-                               return function () {
-                                  return $Maybe.Just({ctor: "_Tuple2"
-                                                     ,_0: _v24._1
-                                                     ,_1: _v24._2});
-                               }();
-                            })(boardToDict(b)));}
-                       return b;
-                    }();}
-               _U.badCase($moduleName,
-               "between lines 289 and 293");
-            }();
-         });
-         return A3($List.foldl,
-         F2(function (_v33,b$) {
-            return function () {
-               switch (_v33.ctor)
-               {case "_Tuple3":
-                  return A2(updateOnePos,
-                    b$,
-                    {ctor: "_Tuple3"
-                    ,_0: _v33._0
-                    ,_1: _v33._1
-                    ,_2: _v33._2});}
-               _U.badCase($moduleName,
-               "on line 299, column 30 to 52");
-            }();
-         }),
-         b,
-         updatedCels);
-      }();
-   });
-   var nari = function (cel) {
-      return function () {
-         switch (cel.ctor)
-         {case "_Tuple3":
-            switch (cel._0.ctor)
-              {case "OnBoard":
-                 switch (cel._0._0.ctor)
-                   {case "_Tuple2":
-                      switch (cel._0._0._1)
-                        {case 0: switch (cel._1.ctor)
-                             {case "Just":
-                                switch (cel._1._0.ctor)
-                                  {case "_Tuple2":
-                                     switch (cel._1._0._0.ctor)
-                                       {case "Chick":
-                                          switch (cel._1._0._1.ctor)
-                                            {case "P1":
-                                               return {ctor: "_Tuple3"
-                                                      ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                                         ,_0: cel._0._0._0
-                                                                         ,_1: 0})
-                                                      ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                                       ,_0: $Type.Chicken
-                                                                       ,_1: $Type.P1})
-                                                      ,_2: cel._2};}
-                                            break;}
-                                       break;}
-                                  break;}
-                             break;
-                           case 3: switch (cel._1.ctor)
-                             {case "Just":
-                                switch (cel._1._0.ctor)
-                                  {case "_Tuple2":
-                                     switch (cel._1._0._0.ctor)
-                                       {case "Chick":
-                                          switch (cel._1._0._1.ctor)
-                                            {case "P2":
-                                               return {ctor: "_Tuple3"
-                                                      ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                                         ,_0: cel._0._0._0
-                                                                         ,_1: 3})
-                                                      ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                                       ,_0: $Type.Chicken
-                                                                       ,_1: $Type.P2})
-                                                      ,_2: cel._2};}
-                                            break;}
-                                       break;}
-                                  break;}
-                             break;}
-                        break;}
-                   break;}
-              break;}
-         return cel;
-      }();
-   };
-   var opponent = function (p) {
-      return _U.eq(p,
-      $Type.P1) ? $Type.P2 : $Type.P1;
-   };
-   var emptyPoss = function ($) {
-      return $List.map(function (_v58) {
-         return function () {
-            switch (_v58.ctor)
-            {case "_Tuple3":
-               return _v58._0;}
-            _U.badCase($moduleName,
-            "on line 192, column 97 to 98");
-         }();
-      })($List.filter(function (_v51) {
-         return function () {
-            switch (_v51.ctor)
-            {case "_Tuple3":
-               return _U.eq(_v51._1,
-                 $Maybe.Nothing) && function () {
-                    switch (_v51._0.ctor)
-                    {case "OnBoard": return true;}
-                    return false;
-                 }();}
-            _U.badCase($moduleName,
-            "between lines 190 and 192");
-         }();
-      })($));
-   };
-   var possesOf = function (player) {
-      return function ($) {
-         return $List.map(function (_v72) {
-            return function () {
-               switch (_v72.ctor)
-               {case "_Tuple3":
-                  return _v72._0;}
-               _U.badCase($moduleName,
-               "on line 186, column 93 to 94");
-            }();
-         })($List.filter(function (_v63) {
-            return function () {
-               switch (_v63.ctor)
-               {case "_Tuple3":
-                  return function () {
-                       switch (_v63._1.ctor)
-                       {case "Just":
-                          switch (_v63._1._0.ctor)
-                            {case "_Tuple2":
-                               return _U.eq(_v63._1._0._1,
-                                 player);}
-                            break;}
-                       return false;
-                    }();}
-               _U.badCase($moduleName,
-               "between lines 184 and 186");
-            }();
-         })($));
-      };
-   };
-   var isOwn = F3(function (player,
-   board,
-   pos) {
-      return function () {
-         switch (pos.ctor)
-         {case "InHand":
-            return _U.eq(player,pos._0);
-            case "OnBoard":
-            return A2($List.member,
-              pos,
-              A2(possesOf,player,board));}
-         _U.badCase($moduleName,
-         "between lines 196 and 198");
-      }();
-   });
-   var movablePosInHand = function (b) {
-      return emptyPoss(b);
-   };
-   var getAt = F4(function (b,
-   mochiG1,
-   mochiG2,
-   p) {
-      return function () {
-         var getAtInHand = F3(function (mochiG,
-         player,
-         n) {
-            return function () {
-               var _v81 = A2($Array.get,
-               n,
-               mochiG);
-               switch (_v81.ctor)
-               {case "Just":
-                  return $Maybe.Just({ctor: "_Tuple2"
-                                     ,_0: _v81._0
-                                     ,_1: player});
-                  case "Nothing":
-                  return $Maybe.Nothing;}
-               _U.badCase($moduleName,
-               "between lines 51 and 54");
-            }();
-         });
-         var getAtOnBoard = F2(function (b,
-         p) {
-            return function () {
-               var _v83 = A2($List.filter,
-               function (_v86) {
-                  return function () {
-                     switch (_v86.ctor)
-                     {case "_Tuple3":
-                        return _U.eq(_v86._0,p);}
-                     _U.badCase($moduleName,
-                     "on line 47, column 56 to 63");
-                  }();
-               },
-               b);
-               switch (_v83.ctor)
-               {case "::":
-                  switch (_v83._1.ctor)
-                    {case "[]": return _v83._0;}
-                    break;}
-               return {ctor: "_Tuple3"
-                      ,_0: p
-                      ,_1: $Maybe.Nothing
-                      ,_2: $Type.NoEffect};
-            }();
-         });
-         return function () {
-            switch (p.ctor)
-            {case "InHand":
-               return function (stAt) {
-                    return {ctor: "_Tuple3"
-                           ,_0: p
-                           ,_1: stAt
-                           ,_2: $Type.NoEffect};
-                 }(A3(getAtInHand,
-                 _U.eq(p._0,
-                 $Type.P1) ? mochiG1 : mochiG2,
-                 p._0,
-                 p._1));
-               case "OnBoard":
-               return A2(getAtOnBoard,b,p);}
-            _U.badCase($moduleName,
-            "between lines 54 and 56");
-         }();
-      }();
-   });
-   var clickMessage = $Signal.channel($Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 0
-                                                    ,_1: 0}));
    var exClickedPos = _P.portOut("exClickedPos",
    _P.outgoingSignal(function (v) {
       return {typ: v.typ
@@ -3310,605 +4431,82 @@ Elm.Main.make = function (_elm) {
              ,n: v.n};
    }),
    A2($Signal._op["<~"],
-   $Port.toExPos,
-   $Signal.subscribe(clickMessage)));
-   var initBoard = _L.fromArray([{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 0
-                                                    ,_1: 0})
-                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                  ,_0: $Type.Giraffe
-                                                  ,_1: $Type.P2})
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 1
-                                                    ,_1: 0})
-                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                  ,_0: $Type.Lion
-                                                  ,_1: $Type.P2})
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 2
-                                                    ,_1: 0})
-                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                  ,_0: $Type.Elephant
-                                                  ,_1: $Type.P2})
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 0
-                                                    ,_1: 1})
-                                 ,_1: $Maybe.Nothing
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 1
-                                                    ,_1: 1})
-                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                  ,_0: $Type.Chick
-                                                  ,_1: $Type.P2})
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 2
-                                                    ,_1: 1})
-                                 ,_1: $Maybe.Nothing
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 0
-                                                    ,_1: 2})
-                                 ,_1: $Maybe.Nothing
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 1
-                                                    ,_1: 2})
-                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                  ,_0: $Type.Chick
-                                                  ,_1: $Type.P1})
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 2
-                                                    ,_1: 2})
-                                 ,_1: $Maybe.Nothing
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 0
-                                                    ,_1: 3})
-                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                  ,_0: $Type.Elephant
-                                                  ,_1: $Type.P1})
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 1
-                                                    ,_1: 3})
-                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                  ,_0: $Type.Lion
-                                                  ,_1: $Type.P1})
-                                 ,_2: $Type.NoEffect}
-                                ,{ctor: "_Tuple3"
-                                 ,_0: $Type.OnBoard({ctor: "_Tuple2"
-                                                    ,_0: 2
-                                                    ,_1: 3})
-                                 ,_1: $Maybe.Just({ctor: "_Tuple2"
-                                                  ,_0: $Type.Giraffe
-                                                  ,_1: $Type.P1})
-                                 ,_2: $Type.NoEffect}]);
-   var initGameState = {_: {}
-                       ,board: initBoard
-                       ,clickedPosition: $Maybe.Nothing
-                       ,clickedStateAt: $Maybe.Nothing
-                       ,mochiGoma1: $Array.empty
-                       ,mochiGoma2: $Array.empty
-                       ,movablePositions: _L.fromArray([])
-                       ,playState: $Type.Neutral
-                       ,result: $Type.Unfinished
-                       ,turn: $Type.P1};
-   var komaSize = {_: {}
-                  ,x: 100
-                  ,y: 100};
-   var boardSize = {_: {}
-                   ,x: 3
-                   ,y: 4};
-   var isOnBoard = F2(function (b,
-   _v95) {
-      return function () {
-         switch (_v95.ctor)
-         {case "_Tuple2":
-            return _U.cmp(0,
-              _v95._0) < 1 && (_U.cmp(_v95._0,
-              boardSize.x - 1) < 1 && (_U.cmp(0,
-              _v95._1) < 1 && _U.cmp(_v95._1,
-              boardSize.y - 1) < 1));}
-         _U.badCase($moduleName,
-         "on line 155, column 22 to 92");
-      }();
-   });
-   var movablePosOnBoard = F2(function (b,
-   _v99) {
-      return function () {
-         switch (_v99.ctor)
-         {case "_Tuple2":
-            switch (_v99._0.ctor)
-              {case "_Tuple2":
-                 return function () {
-                      var movableArea = F2(function (kt,
-                      pl) {
-                         return function () {
-                            switch (kt.ctor)
-                            {case "Chick":
-                               return _L.fromArray([{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0
-                                                    ,_1: _U.eq(pl,
-                                                    $Type.P1) ? _v99._0._1 - 1 : _v99._0._1 + 1}]);
-                               case "Chicken":
-                               return A2($Basics._op["++"],
-                                 _L.fromArray([{ctor: "_Tuple2"
-                                               ,_0: _v99._0._0
-                                               ,_1: _v99._0._1 + 1}
-                                              ,{ctor: "_Tuple2"
-                                               ,_0: _v99._0._0
-                                               ,_1: _v99._0._1 - 1}
-                                              ,{ctor: "_Tuple2"
-                                               ,_0: _v99._0._0 + 1
-                                               ,_1: _v99._0._1}
-                                              ,{ctor: "_Tuple2"
-                                               ,_0: _v99._0._0 - 1
-                                               ,_1: _v99._0._1}]),
-                                 _U.eq(pl,
-                                 $Type.P1) ? _L.fromArray([{ctor: "_Tuple2"
-                                                           ,_0: _v99._0._0 - 1
-                                                           ,_1: _v99._0._1 - 1}
-                                                          ,{ctor: "_Tuple2"
-                                                           ,_0: _v99._0._0 + 1
-                                                           ,_1: _v99._0._1 - 1}]) : _L.fromArray([{ctor: "_Tuple2"
-                                                                                                  ,_0: _v99._0._0 - 1
-                                                                                                  ,_1: _v99._0._1 + 1}
-                                                                                                 ,{ctor: "_Tuple2"
-                                                                                                  ,_0: _v99._0._0 + 1
-                                                                                                  ,_1: _v99._0._1 + 1}]));
-                               case "Elephant":
-                               return _L.fromArray([{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 + 1
-                                                    ,_1: _v99._0._1 + 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 - 1
-                                                    ,_1: _v99._0._1 + 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 - 1
-                                                    ,_1: _v99._0._1 - 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 + 1
-                                                    ,_1: _v99._0._1 - 1}]);
-                               case "Giraffe":
-                               return _L.fromArray([{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0
-                                                    ,_1: _v99._0._1 + 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0
-                                                    ,_1: _v99._0._1 - 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 + 1
-                                                    ,_1: _v99._0._1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 - 1
-                                                    ,_1: _v99._0._1}]);
-                               case "Lion":
-                               return _L.fromArray([{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 - 1
-                                                    ,_1: _v99._0._1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0
-                                                    ,_1: _v99._0._1 - 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 + 1
-                                                    ,_1: _v99._0._1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0
-                                                    ,_1: _v99._0._1 + 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 + 1
-                                                    ,_1: _v99._0._1 + 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 + 1
-                                                    ,_1: _v99._0._1 - 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 - 1
-                                                    ,_1: _v99._0._1 + 1}
-                                                   ,{ctor: "_Tuple2"
-                                                    ,_0: _v99._0._0 - 1
-                                                    ,_1: _v99._0._1 - 1}]);}
-                            _U.badCase($moduleName,
-                            "between lines 172 and 178");
-                         }();
-                      });
-                      var filterFunc = F2(function (pl,
-                      xy) {
-                         return A2(isOnBoard,
-                         b,
-                         xy) && $Basics.not(A2($List.member,
-                         $Type.OnBoard(xy),
-                         A2(possesOf,pl,b)));
-                      });
-                      return function () {
-                         switch (_v99._1.ctor)
-                         {case "Just":
-                            switch (_v99._1._0.ctor)
-                              {case "_Tuple2":
-                                 return $List.map($Type.OnBoard)($List.filter(filterFunc(_v99._1._0._1))(A2(movableArea,
-                                   _v99._1._0._0,
-                                   _v99._1._0._1)));}
-                              break;
-                            case "Nothing":
-                            return _L.fromArray([]);}
-                         _U.badCase($moduleName,
-                         "between lines 178 and 180");
-                      }();
-                   }();}
-              break;}
-         _U.badCase($moduleName,
-         "between lines 169 and 180");
-      }();
-   });
-   var movablePos = F2(function (b,
-   _v110) {
-      return function () {
-         switch (_v110.ctor)
-         {case "_Tuple2":
-            return function () {
-                 switch (_v110._0.ctor)
-                 {case "InHand":
-                    return movablePosInHand(b);
-                    case "OnBoard":
-                    return A2(movablePosOnBoard,
-                      b,
-                      {ctor: "_Tuple2"
-                      ,_0: _v110._0._0
-                      ,_1: _v110._1});}
-                 _U.badCase($moduleName,
-                 "between lines 160 and 162");
-              }();}
-         _U.badCase($moduleName,
-         "between lines 160 and 162");
-      }();
-   });
-   var updateGameState = F2(function (pos,
-   gs) {
-      return function () {
-         var cancelSelect = $List.map(function (_v118) {
-            return function () {
-               switch (_v118.ctor)
-               {case "_Tuple3":
-                  return {ctor: "_Tuple3"
-                         ,_0: _v118._0
-                         ,_1: _v118._1
-                         ,_2: $Type.NoEffect};}
-               _U.badCase($moduleName,
-               "on line 242, column 44 to 57");
-            }();
-         });
-         var resetEffect = $List.map(function (_v123) {
-            return function () {
-               switch (_v123.ctor)
-               {case "_Tuple3":
-                  return {ctor: "_Tuple3"
-                         ,_0: _v123._0
-                         ,_1: _v123._1
-                         ,_2: $Type.NoEffect};}
-               _U.badCase($moduleName,
-               "on line 239, column 43 to 55");
-            }();
-         });
-         var selected = F2(function (p$,
-         gs) {
-            return function () {
-               var _ = A4(getAt,
-               gs.board,
-               gs.mochiGoma1,
-               gs.mochiGoma2,
-               p$);
-               var pos = function () {
-                  switch (_.ctor)
-                  {case "_Tuple3": return _._0;}
-                  _U.badCase($moduleName,
-                  "on line 228, column 30 to 75");
-               }();
-               var st = function () {
-                  switch (_.ctor)
-                  {case "_Tuple3": return _._1;}
-                  _U.badCase($moduleName,
-                  "on line 228, column 30 to 75");
-               }();
-               var player = $Basics.snd(A2(justOrCrash,
-               "yyy",
-               st));
-               var movablePos$ = A2(movablePos,
-               gs.board,
-               {ctor: "_Tuple2"
-               ,_0: p$
-               ,_1: st});
-               var effectedPoss = F2(function (p$,
-               b) {
-                  return A2($List._op["::"],
-                  pos,
-                  movablePos$);
-               });
-               return A3(isOwn,
-               player,
-               gs.board,
-               p$) && $Basics.not($List.isEmpty(movablePos$)) ? A2($List.map,
-               function (_v136) {
-                  return function () {
-                     switch (_v136.ctor)
-                     {case "_Tuple3":
-                        return A2($List.member,
-                          _v136._0,
-                          A2(effectedPoss,
-                          p$,
-                          gs.board)) ? {ctor: "_Tuple3"
-                                       ,_0: _v136._0
-                                       ,_1: _v136._1
-                                       ,_2: $Type.Transparent} : {ctor: "_Tuple3"
-                                                                 ,_0: _v136._0
-                                                                 ,_1: _v136._1
-                                                                 ,_2: _v136._2};}
-                     _U.badCase($moduleName,
-                     "on line 235, column 43 to 119");
-                  }();
-               },
-               gs.board) : gs.board;
-            }();
-         });
-         var opponent_ = opponent(gs.turn);
-         var isFinished = !_U.eq(gs.result,
-         $Type.Unfinished);
-         var isMove = _U.eq(gs.playState,
-         $Type.Selected) && A2($List.member,
-         pos,
-         gs.movablePositions);
-         var isSelect = _U.eq(gs.playState,
-         $Type.Neutral) && A3(isOwn,
-         gs.turn,
-         gs.board,
-         pos);
-         var getStateAt = F4(function (b,
-         mochiG1,
-         mochiG2,
-         p) {
-            return function (_v141) {
-               return function () {
-                  switch (_v141.ctor)
-                  {case "_Tuple3":
-                     return _v141._1;}
-                  _U.badCase($moduleName,
-                  "on line 205, column 84 to 85");
-               }();
-            }(A4(getAt,
-            b,
-            mochiG1,
-            mochiG2,
-            p));
-         });
-         var mochiGoma_ = F3(function (pl,
-         stAt,
-         clickedP) {
-            return function () {
-               switch (pos.ctor)
-               {case "OnBoard":
-                  return function () {
-                       var _v148 = A4(getStateAt,
-                       gs.board,
-                       gs.mochiGoma1,
-                       gs.mochiGoma2,
-                       pos);
-                       switch (_v148.ctor)
-                       {case "Just":
-                          switch (_v148._0.ctor)
-                            {case "_Tuple2":
-                               switch (_v148._0._0.ctor)
-                                 {case "Chicken":
-                                    return A2($Array.push,
-                                      $Type.Chick,
-                                      _U.eq(pl,
-                                      $Type.P1) ? gs.mochiGoma1 : gs.mochiGoma2);}
-                                 return A2($Array.push,
-                                 _v148._0._0,
-                                 _U.eq(pl,
-                                 $Type.P1) ? gs.mochiGoma1 : gs.mochiGoma2);}
-                            break;}
-                       return function () {
-                          switch (clickedP.ctor)
-                          {case "Just":
-                             switch (clickedP._0.ctor)
-                               {case "InHand":
-                                  return $Array.filter(function (mG) {
-                                       return !_U.eq(stAt,
-                                       $Maybe.Just({ctor: "_Tuple2"
-                                                   ,_0: mG
-                                                   ,_1: clickedP._0._0}));
-                                    })(_U.eq(clickedP._0._0,
-                                    $Type.P1) ? gs.mochiGoma1 : gs.mochiGoma2);}
-                               break;}
-                          return _U.eq(pl,
-                          $Type.P1) ? gs.mochiGoma1 : gs.mochiGoma2;
-                       }();
-                    }();}
-               _U.badCase($moduleName,
-               "between lines 217 and 226");
-            }();
-         });
-         var stAt = function (_v156) {
-            return function () {
-               switch (_v156.ctor)
-               {case "_Tuple3":
-                  return _v156._1;}
-               _U.badCase($moduleName,
-               "on line 203, column 85 to 86");
-            }();
-         }(A4(getAt,
-         gs.board,
-         gs.mochiGoma1,
-         gs.mochiGoma2,
-         pos));
-         var mPoss = A2(movablePos,
-         gs.board,
-         {ctor: "_Tuple2"
-         ,_0: pos
-         ,_1: stAt});
-         return isFinished ? gs : isMove ? _U.replace([["playState"
-                                                       ,$Type.Neutral]
-                                                      ,["result"
-                                                       ,_U.eq(A4(getStateAt,
-                                                       gs.board,
-                                                       gs.mochiGoma1,
-                                                       gs.mochiGoma2,
-                                                       pos),
-                                                       $Maybe.Just({ctor: "_Tuple2"
-                                                                   ,_0: $Type.Lion
-                                                                   ,_1: opponent_})) ? $Type.Win(gs.turn) : $Type.Unfinished]
-                                                      ,["board"
-                                                       ,resetEffect(A2(updateBoard,
-                                                       gs.board,
-                                                       _L.fromArray([{ctor: "_Tuple3"
-                                                                     ,_0: A2(justOrCrash,
-                                                                     "xxx",
-                                                                     gs.clickedPosition)
-                                                                     ,_1: $Maybe.Nothing
-                                                                     ,_2: $Type.NoEffect}
-                                                                    ,function (cel) {
-                                                                       return function () {
-                                                                          var _v161 = gs.clickedPosition;
-                                                                          switch (_v161.ctor)
-                                                                          {case "Just":
-                                                                             switch (_v161._0.ctor)
-                                                                               {case "OnBoard":
-                                                                                  return nari(cel);}
-                                                                               break;}
-                                                                          return cel;
-                                                                       }();
-                                                                    }({ctor: "_Tuple3"
-                                                                      ,_0: pos
-                                                                      ,_1: gs.clickedStateAt
-                                                                      ,_2: $Type.NoEffect})])))]
-                                                      ,["turn"
-                                                       ,opponent(gs.turn)]
-                                                      ,["clickedPosition"
-                                                       ,$Maybe.Just(pos)]
-                                                      ,["movablePositions"
-                                                       ,_L.fromArray([])]
-                                                      ,["mochiGoma1"
-                                                       ,_U.eq(gs.turn,
-                                                       $Type.P1) ? A3(mochiGoma_,
-                                                       $Type.P1,
-                                                       gs.clickedStateAt,
-                                                       gs.clickedPosition) : gs.mochiGoma1]
-                                                      ,["mochiGoma2"
-                                                       ,_U.eq(gs.turn,
-                                                       $Type.P2) ? A3(mochiGoma_,
-                                                       $Type.P2,
-                                                       gs.clickedStateAt,
-                                                       gs.clickedPosition) : gs.mochiGoma2]],
-         gs) : isSelect ? _U.replace([["board"
-                                      ,A2(selected,pos,gs)]
-                                     ,["playState",$Type.Selected]
-                                     ,["clickedStateAt"
-                                      ,A4(getStateAt,
-                                      gs.board,
-                                      gs.mochiGoma1,
-                                      gs.mochiGoma2,
-                                      pos)]
-                                     ,["clickedPosition"
-                                      ,$Maybe.Just(pos)]
-                                     ,["movablePositions",mPoss]],
-         gs) : _U.replace([["board"
-                           ,cancelSelect(gs.board)]
-                          ,["playState",$Type.Neutral]
-                          ,["clickedStateAt"
-                           ,$Maybe.Nothing]
-                          ,["clickedPosition"
-                           ,$Maybe.Just(pos)]
-                          ,["movablePositions"
-                           ,_L.fromArray([])]],
-         gs);
-      }();
-   });
-   var gameState = A3($Signal.foldp,
-   updateGameState,
-   initGameState,
-   A2($Signal._op["<~"],
-   $Port.fromExPos,
-   inClickedPos));
-   var show = function (a) {
-      return function () {
-         switch (a.ctor)
-         {case "P1": return "先手";
-            case "P2": return "後手";}
-         _U.badCase($moduleName,
-         "between lines 17 and 19");
-      }();
-   };
+   $DoubutsuShogi$Port.toExPos,
+   $Signal.subscribe($DoubutsuShogi.clickMessage)));
+   var reverseFlg = A3($Signal.foldp,
+   F2(function (s,acc) {
+      return s ? $Basics.not(acc) : acc;
+   }),
+   false,
+   $Keyboard.space);
    var main = function () {
+      var reverseBoard = F2(function (reverseFlg,
+      e) {
+         return function () {
+            var $ = $Graphics$Element.sizeOf(e),
+            w = $._0,
+            h = $._1;
+            return reverseFlg ? A3($Graphics$Collage.collage,
+            w,
+            h,
+            _L.fromArray([$Graphics$Collage.rotate($Basics.degrees(180))($Graphics$Collage.toForm(e))])) : e;
+         }();
+      });
       var turnMessage = function (gs) {
          return function () {
-            var _v165 = gs.result;
-            switch (_v165.ctor)
+            var _v0 = gs.result;
+            switch (_v0.ctor)
             {case "Win":
                return A2($Graphics$Element.flow,
                  $Graphics$Element.right,
-                 _L.fromArray([$Text.plainText(show(_v165._0))
+                 _L.fromArray([$Text.plainText($DoubutsuShogi.show(_v0._0))
                               ,$Text.plainText("の勝ちです")]));}
             return A2($Graphics$Element.flow,
             $Graphics$Element.right,
-            _L.fromArray([$Text.plainText(show(gs.turn))
+            _L.fromArray([$Text.plainText($DoubutsuShogi.show(gs.turn))
                          ,$Text.plainText("の手番です")]));
          }();
       };
       var toClickable = function (pos) {
          return $Graphics$Input.clickable(A2($Signal.send,
-         clickMessage,
+         $DoubutsuShogi.clickMessage,
          pos));
       };
       var posKeyListTo2DList = function (tuples) {
          return function () {
-            var tpl2nd3rd = function (_v167) {
+            var tpl2nd3rd = function (_v2) {
                return function () {
-                  switch (_v167.ctor)
+                  switch (_v2.ctor)
                   {case "_Tuple3":
                      return {ctor: "_Tuple2"
-                            ,_0: _v167._1
-                            ,_1: _v167._2};}
+                            ,_0: _v2._1
+                            ,_1: _v2._2};}
                   _U.badCase($moduleName,
-                  "on line 108, column 34 to 37");
+                  "on line 53, column 34 to 37");
                }();
             };
             var yiList = function (i) {
-               return $List.filter(function (_v172) {
+               return $List.filter(function (_v7) {
                   return function () {
-                     switch (_v172.ctor)
+                     switch (_v7.ctor)
                      {case "_Tuple3":
                         return function () {
-                             switch (_v172._0.ctor)
+                             switch (_v7._0.ctor)
                              {case "InHand": return false;
                                 case "OnBoard":
-                                switch (_v172._0._0.ctor)
+                                switch (_v7._0._0.ctor)
                                   {case "_Tuple2":
-                                     return _U.eq(_v172._0._0._1,i);}
+                                     return _U.eq(_v7._0._0._1,i);}
                                   break;}
                              _U.badCase($moduleName,
-                             "between lines 105 and 107");
+                             "between lines 50 and 52");
                           }();}
                      _U.badCase($moduleName,
-                     "between lines 105 and 107");
+                     "between lines 50 and 52");
                   }();
                });
             };
-            var yMax = boardSize.y - 1;
+            var yMax = $DoubutsuShogi.boardSize.y - 1;
             return A2($List.map,
             function (yi) {
                return A2(yiList,yi,tuples);
@@ -3917,8 +4515,8 @@ Elm.Main.make = function (_elm) {
          }();
       };
       var emptyImg = $Graphics$Element.color($Color.white)(A2($Graphics$Element.spacer,
-      komaSize.x,
-      komaSize.y));
+      $DoubutsuShogi.komaSize.x,
+      $DoubutsuShogi.komaSize.y));
       var komaImg = F2(function (kt,
       player) {
          return function () {
@@ -3927,7 +4525,7 @@ Elm.Main.make = function (_elm) {
                {case "P1": return "A";
                   case "P2": return "B";}
                _U.badCase($moduleName,
-               "between lines 83 and 86");
+               "between lines 28 and 31");
             }();
             var ktImg = function () {
                switch (kt.ctor)
@@ -3951,37 +4549,37 @@ Elm.Main.make = function (_elm) {
       var komaElement = F2(function (kt,
       player) {
          return A2($Graphics$Element.fittedImage,
-         komaSize.x,
-         komaSize.y)(A2(komaImg,
+         $DoubutsuShogi.komaSize.x,
+         $DoubutsuShogi.komaSize.y)(A2(komaImg,
          kt,
          player));
       });
-      var celToElement = function (_v185) {
+      var celToElement = function (_v20) {
          return function () {
-            switch (_v185.ctor)
+            switch (_v20.ctor)
             {case "_Tuple3":
                return function () {
-                    var effect = _U.eq(_v185._2,
-                    $Type.Transparent) ? $Graphics$Element.opacity(0.5) : $Graphics$Element.opacity(1.0);
+                    var effect = _U.eq(_v20._2,
+                    $DoubutsuShogi$Type.Transparent) ? $Graphics$Element.opacity(0.5) : $Graphics$Element.opacity(1.0);
                     return $Graphics$Input.clickable(A2($Signal.send,
-                    clickMessage,
-                    _v185._0))(effect(function () {
-                       switch (_v185._1.ctor)
+                    $DoubutsuShogi.clickMessage,
+                    _v20._0))(effect(function () {
+                       switch (_v20._1.ctor)
                        {case "Just":
-                          switch (_v185._1._0.ctor)
+                          switch (_v20._1._0.ctor)
                             {case "_Tuple2":
                                return A2(komaElement,
-                                 _v185._1._0._0,
-                                 _v185._1._0._1);}
+                                 _v20._1._0._0,
+                                 _v20._1._0._1);}
                             break;
                           case "Nothing":
                           return emptyImg;}
                        _U.badCase($moduleName,
-                       "between lines 116 and 121");
+                       "between lines 61 and 66");
                     }()));
                  }();}
             _U.badCase($moduleName,
-            "between lines 113 and 121");
+            "between lines 58 and 66");
          }();
       };
       var fromListListStateAtToElement = function ($) {
@@ -3997,74 +4595,63 @@ Elm.Main.make = function (_elm) {
       var komaElementAtKomaDai = F2(function (kt,
       player) {
          return A2($Graphics$Element.fittedImage,
-         $Basics.round($Basics.toFloat(komaSize.x) * 0.5),
-         $Basics.round($Basics.toFloat(komaSize.y) * 0.5))(A2(komaImg,
+         $Basics.round($Basics.toFloat($DoubutsuShogi.komaSize.x) * 0.5),
+         $Basics.round($Basics.toFloat($DoubutsuShogi.komaSize.y) * 0.5))(A2(komaImg,
          kt,
          player));
       });
       var komaDaiToElement = function (pl) {
          return function ($) {
-            return $Graphics$Element.flow($Graphics$Element.right)($List.map(function (_v194) {
+            return $Graphics$Element.flow($Graphics$Element.right)($List.map(function (_v29) {
                return function () {
-                  switch (_v194.ctor)
+                  switch (_v29.ctor)
                   {case "_Tuple2":
                      return A2(toClickable,
-                       A2($Type.InHand,pl,_v194._0),
+                       A2($DoubutsuShogi$Type.InHand,
+                       pl,
+                       _v29._0),
                        A2(komaElementAtKomaDai,
-                       _v194._1,
+                       _v29._1,
                        pl));}
                   _U.badCase($moduleName,
-                  "on line 131, column 67 to 120");
+                  "on line 76, column 67 to 120");
                }();
             })($Array.toIndexedList($)));
          };
       };
-      var view = function (gs) {
+      var view = F2(function (isReverse,
+      gs) {
          return A2($Graphics$Element.flow,
-         $Graphics$Element.right,
-         _L.fromArray([A2($Graphics$Element.flow,
          $Graphics$Element.down,
          _L.fromArray([turnMessage(gs)
-                      ,A2(komaDaiToElement,
-                      $Type.P2,
-                      gs.mochiGoma2)
-                      ,A2($Graphics$Element.spacer,
-                      10,
-                      10)
-                      ,$Graphics$Element.width(boardSize.x * komaSize.x)(boardToElement(gs.board))
-                      ,A2($Graphics$Element.spacer,
-                      10,
-                      10)
-                      ,A2(komaDaiToElement,
-                      $Type.P1,
-                      gs.mochiGoma1)]))]));
-      };
-      return A2($Signal._op["<~"],
+                      ,$Text.plainText(isReverse ? "　▽後手　▲先手" : "　▼先手　△後手")
+                      ,reverseBoard(isReverse)(A2($Graphics$Element.flow,
+                      $Graphics$Element.down,
+                      _L.fromArray([A2(komaDaiToElement,
+                                   $DoubutsuShogi$Type.P2,
+                                   gs.mochiGoma2)
+                                   ,A2($Graphics$Element.spacer,
+                                   10,
+                                   10)
+                                   ,$Graphics$Element.width($DoubutsuShogi.boardSize.x * $DoubutsuShogi.komaSize.x)(boardToElement(gs.board))
+                                   ,A2($Graphics$Element.spacer,
+                                   10,
+                                   10)
+                                   ,A2(komaDaiToElement,
+                                   $DoubutsuShogi$Type.P1,
+                                   gs.mochiGoma1)])))]));
+      });
+      return A2($Signal._op["~"],
+      A2($Signal._op["<~"],
       view,
-      gameState);
+      reverseFlg),
+      $DoubutsuShogi.gameState(A2($Signal._op["<~"],
+      $DoubutsuShogi$Port.fromExPos,
+      inClickedPos)));
    }();
    _elm.Main.values = {_op: _op
-                      ,show: show
-                      ,boardSize: boardSize
-                      ,komaSize: komaSize
-                      ,initBoard: initBoard
-                      ,clickMessage: clickMessage
-                      ,getAt: getAt
-                      ,initGameState: initGameState
-                      ,gameState: gameState
                       ,main: main
-                      ,isOnBoard: isOnBoard
-                      ,movablePos: movablePos
-                      ,movablePosInHand: movablePosInHand
-                      ,movablePosOnBoard: movablePosOnBoard
-                      ,possesOf: possesOf
-                      ,emptyPoss: emptyPoss
-                      ,isOwn: isOwn
-                      ,updateGameState: updateGameState
-                      ,opponent: opponent
-                      ,nari: nari
-                      ,updateBoard: updateBoard
-                      ,justOrCrash: justOrCrash};
+                      ,reverseFlg: reverseFlg};
    return _elm.Main.values;
 };
 Elm.Maybe = Elm.Maybe || {};
@@ -6453,6 +7040,161 @@ Elm.Native.Graphics.Input.make = function(localRuntime) {
 
 };
 
+Elm.Native.Keyboard = {};
+Elm.Native.Keyboard.make = function(elm) {
+
+    elm.Native = elm.Native || {};
+    elm.Native.Keyboard = elm.Native.Keyboard || {};
+    if (elm.Native.Keyboard.values) return elm.Native.Keyboard.values;
+
+    // Duplicated from Native.Signal
+    function send(node, timestep, changed) {
+        var kids = node.kids;
+        for (var i = kids.length; i--; ) {
+            kids[i].recv(timestep, changed, node.id);
+        }
+    }
+
+    var Signal = Elm.Signal.make(elm);
+    var NList = Elm.Native.List.make(elm);
+    var Utils = Elm.Native.Utils.make(elm);
+
+    var downEvents = Signal.constant(null);
+    var upEvents = Signal.constant(null);
+    var blurEvents = Signal.constant(null);
+
+    elm.addListener([downEvents.id], document, 'keydown', function down(e) {
+        elm.notify(downEvents.id, e);
+    });
+
+    elm.addListener([upEvents.id], document, 'keyup', function up(e) {
+        elm.notify(upEvents.id, e);
+    });
+
+    elm.addListener([blurEvents.id], window, 'blur', function blur(e) {
+        elm.notify(blurEvents.id, null);
+    });
+
+    function state(alt, meta, keyCodes) {
+        return {
+            alt: alt,
+            meta: meta,
+            keyCodes: keyCodes
+        };
+    }
+    var emptyState = state(false, false, NList.Nil);
+
+    function KeyMerge(down, up, blur) {
+        var args = [down,up,blur];
+        this.id = Utils.guid();
+        // Ignore starting values here
+        this.value = emptyState;
+        this.kids = [];
+        
+        var n = args.length;
+        var count = 0;
+        var isChanged = false;
+
+        this.recv = function(timestep, changed, parentID) {
+            ++count;
+            if (changed) { 
+                // We know this a change must only be one of the following cases
+                if (parentID === down.id && !A2(NList.member, down.value.keyCode, this.value.keyCodes)) {
+                    isChanged = true;
+                    var v = down.value;
+                    var newCodes = NList.Cons(v.keyCode, this.value.keyCodes);
+                    this.value = state(v.altKey, v.metaKey, newCodes);
+                }
+                else if (parentID === up.id) {
+                    isChanged = true;
+                    var v = up.value;
+                    var notEq = function(kc) { return kc !== v.keyCode };
+                    var newCodes = A2(NList.filter, notEq, this.value.keyCodes);
+                    this.value = state(v.altKey, v.metaKey, newCodes);
+                }
+                else if (parentID === blur.id) {
+                    isChanged = true;
+                    this.value = emptyState;
+                }
+            }
+            if (count == n) {
+                send(this, timestep, isChanged);
+                isChanged = false;
+                count = 0;
+            }
+        };
+
+        for (var i = n; i--; ) {
+            args[i].kids.push(this);
+            args[i].defaultNumberOfKids += 1;
+        }
+    }
+
+    var keyMerge = new KeyMerge(downEvents,upEvents,blurEvents);
+
+    // select a part of a keyMerge and dropRepeats the result
+    function keySignal(f) {
+        var signal = A2(Signal.map, f, keyMerge);
+        // must set the default number of kids to make it possible to filter
+        // these signals if they are not actually used.
+        keyMerge.defaultNumberOfKids += 1;
+        signal.defaultNumberOfKids = 1;
+        var filtered = Signal.dropRepeats(signal);
+        filtered.defaultNumberOfKids = 0;
+        return filtered;
+    }
+
+    // break keyMerge into parts
+    var keysDown = keySignal(function getKeyCodes(v) {
+        return v.keyCodes;
+    });
+    var alt = keySignal(function getKeyCodes(v) {
+        return v.alt;
+    });
+    var meta = keySignal(function getKeyCodes(v) {
+        return v.meta;
+    });
+
+    function dir(up, down, left, right) {
+        function toDirections(state) {
+            var keyCodes = state.keyCodes;
+            var x = 0, y = 0;
+            while (keyCodes.ctor === "::") {
+                switch (keyCodes._0) {
+                case left : --x; break;
+                case right: ++x; break;
+                case up   : ++y; break;
+                case down : --y; break;
+                }
+                keyCodes = keyCodes._1;
+            }
+            return { _:{}, x:x, y:y };
+        }
+        return keySignal(toDirections);
+    }
+
+    function is(key) {
+        return keySignal(function(v) {
+            return A2( NList.member, key, v.keyCodes );
+        });
+    }
+
+    var lastPressed = A2(Signal.map, function(e) {
+        return e ? e.keyCode : 0;
+    }, downEvents);
+    downEvents.defaultNumberOfKids += 1;
+
+    return elm.Native.Keyboard.values = {
+        isDown:is,
+        alt: alt,
+        meta: meta,
+        directions:F4(dir),
+        keysDown:keysDown,
+        lastPressed:lastPressed
+    };
+
+};
+
 Elm.Native.List = {};
 Elm.Native.List.make = function(elm) {
     elm.Native = elm.Native || {};
@@ -8663,410 +9405,6 @@ Elm.Native.Utils.make = function(localRuntime) {
     };
 };
 
-Elm.Port = Elm.Port || {};
-Elm.Port.make = function (_elm) {
-   "use strict";
-   _elm.Port = _elm.Port || {};
-   if (_elm.Port.values)
-   return _elm.Port.values;
-   var _op = {},
-   _N = Elm.Native,
-   _U = _N.Utils.make(_elm),
-   _L = _N.List.make(_elm),
-   _P = _N.Ports.make(_elm),
-   $moduleName = "Port",
-   $Array = Elm.Array.make(_elm),
-   $Basics = Elm.Basics.make(_elm),
-   $Debug = Elm.Debug.make(_elm),
-   $List = Elm.List.make(_elm),
-   $Maybe = Elm.Maybe.make(_elm),
-   $Type = Elm.Type.make(_elm);
-   var fromExPlayState = function (ex) {
-      return _U.eq(ex.label,
-      "Neutral") ? $Type.Neutral : _U.eq(ex.label,
-      "Selected") ? $Type.Selected : _U.badIf($moduleName,
-      "between lines 131 and 133");
-   };
-   var toExPlayState = function (ps) {
-      return function () {
-         switch (ps.ctor)
-         {case "Neutral": return {_: {}
-                                 ,label: "Neutral"
-                                 ,typ: "PlayState"};
-            case "Selected": return {_: {}
-                                    ,label: "Selected"
-                                    ,typ: "PlayState"};}
-         _U.badCase($moduleName,
-         "between lines 126 and 128");
-      }();
-   };
-   var fromExEffect = function (ex) {
-      return _U.eq(ex.label,
-      "NoEffect") ? $Type.NoEffect : _U.eq(ex.label,
-      "Transparent") ? $Type.Transparent : $Debug.crash("fromExEffect error");
-   };
-   var toExEffect = function (ef) {
-      return function () {
-         switch (ef.ctor)
-         {case "NoEffect": return {_: {}
-                                  ,label: "NoEffect"
-                                  ,typ: "Effect"};
-            case "Transparent":
-            return {_: {}
-                   ,label: "Transparent"
-                   ,typ: "Effect"};}
-         _U.badCase($moduleName,
-         "between lines 82 and 84");
-      }();
-   };
-   var fromExKomaType = function (ex) {
-      return function () {
-         var a = ex;
-         return _U.eq(ex.label,
-         "Lion") ? $Type.Lion : _U.eq(ex.label,
-         "Elephant") ? $Type.Elephant : _U.eq(ex.label,
-         "Giraffe") ? $Type.Giraffe : _U.eq(ex.label,
-         "Chick") ? $Type.Chick : _U.eq(ex.label,
-         "Chicken") ? $Type.Chicken : _U.badIf($moduleName,
-         "between lines 64 and 69");
-      }();
-   };
-   var fromExKomaDai = $Array.map(fromExKomaType);
-   var toExKomaType = function (kt) {
-      return function () {
-         switch (kt.ctor)
-         {case "Chick": return {_: {}
-                               ,label: "Chick"
-                               ,typ: "KomaType"};
-            case "Chicken": return {_: {}
-                                   ,label: "Chicken"
-                                   ,typ: "KomaType"};
-            case "Elephant": return {_: {}
-                                    ,label: "Elephant"
-                                    ,typ: "KomaType"};
-            case "Giraffe": return {_: {}
-                                   ,label: "Giraffe"
-                                   ,typ: "KomaType"};
-            case "Lion": return {_: {}
-                                ,label: "Lion"
-                                ,typ: "KomaType"};}
-         _U.badCase($moduleName,
-         "between lines 54 and 59");
-      }();
-   };
-   var toExKomaDai = function (kd) {
-      return _U.eq(kd,
-      $Array.empty) ? $Array.fromList(_L.fromArray([])) : A2($Array.map,
-      toExKomaType,
-      kd);
-   };
-   var fromExPlayer = function (ex) {
-      return _U.eq(ex.label,
-      "P1") ? $Type.P1 : _U.eq(ex.label,
-      "P2") ? $Type.P2 : $Debug.crash("fromExPlayer error");
-   };
-   var fromExStateAt = function (ex) {
-      return function () {
-         switch (ex.ctor)
-         {case "Just":
-            return $Maybe.Just({ctor: "_Tuple2"
-                               ,_0: fromExKomaType(ex._0.komaType)
-                               ,_1: fromExPlayer(ex._0.player)});
-            case "Nothing":
-            return $Maybe.Nothing;}
-         _U.badCase($moduleName,
-         "between lines 77 and 79");
-      }();
-   };
-   var fromExGameResult = function (ex) {
-      return _U.eq(ex.label,
-      "Unfinished") ? $Type.Unfinished : _U.eq(ex.label,
-      "Win") ? $Type.Win(fromExPlayer(ex.player)) : _U.eq(ex.label,
-      "Draw") ? $Type.Draw : _U.badIf($moduleName,
-      "between lines 120 and 123");
-   };
-   var toExPlayer = function (pl) {
-      return function () {
-         switch (pl.ctor)
-         {case "P1": return {_: {}
-                            ,label: "P1"
-                            ,typ: "Player"};
-            case "P2": return {_: {}
-                              ,label: "P2"
-                              ,typ: "Player"};}
-         _U.badCase($moduleName,
-         "between lines 43 and 45");
-      }();
-   };
-   var toExStateAt = function (st) {
-      return function () {
-         switch (st.ctor)
-         {case "Just":
-            switch (st._0.ctor)
-              {case "_Tuple2":
-                 return $Maybe.Just({_: {}
-                                    ,komaType: toExKomaType(st._0._0)
-                                    ,player: toExPlayer(st._0._1)
-                                    ,typ: "StateAt"});}
-              break;
-            case "Nothing":
-            return $Maybe.Nothing;}
-         _U.badCase($moduleName,
-         "between lines 72 and 74");
-      }();
-   };
-   var toExGameResult = function (gr) {
-      return function () {
-         switch (gr.ctor)
-         {case "Draw": return {_: {}
-                              ,label: "Draw"
-                              ,player: {_: {}
-                                       ,label: "Nothing"
-                                       ,typ: "Player"}
-                              ,typ: "GameResult"};
-            case "Unfinished": return {_: {}
-                                      ,label: "Unfinished"
-                                      ,player: {_: {}
-                                               ,label: "Nothing"
-                                               ,typ: "Player"}
-                                      ,typ: "GameResult"};
-            case "Win": return {_: {}
-                               ,label: "Win"
-                               ,player: toExPlayer(gr._0)
-                               ,typ: "GameResult"};}
-         _U.badCase($moduleName,
-         "between lines 114 and 117");
-      }();
-   };
-   var fromExPos = function (ex) {
-      return function () {
-         var _v12 = ex.label;
-         switch (_v12)
-         {case "InHand":
-            return A2($Type.InHand,
-              fromExPlayer(ex.player),
-              ex.n);
-            case "OnBoard":
-            return $Type.OnBoard({ctor: "_Tuple2"
-                                 ,_0: ex.x
-                                 ,_1: ex.y});}
-         _U.badCase($moduleName,
-         "between lines 38 and 40");
-      }();
-   };
-   var fromExCel = function (ex) {
-      return {ctor: "_Tuple3"
-             ,_0: fromExPos(ex.pos)
-             ,_1: fromExStateAt(ex.stateAt)
-             ,_2: fromExEffect(ex.effect)};
-   };
-   var fromExBoard = $List.map(fromExCel);
-   var fromExGameState = function (ex) {
-      return {_: {}
-             ,board: fromExBoard(ex.board)
-             ,clickedPosition: function () {
-                var _v13 = ex.clickedPosition;
-                switch (_v13.ctor)
-                {case "Just":
-                   return $Maybe.Just(fromExPos(_v13._0));
-                   case "Nothing":
-                   return $Maybe.Nothing;}
-                _U.badCase($moduleName,
-                "between lines 158 and 161");
-             }()
-             ,clickedStateAt: fromExStateAt(ex.clickedStateAt)
-             ,mochiGoma1: fromExKomaDai(ex.mochiGoma1)
-             ,mochiGoma2: fromExKomaDai(ex.mochiGoma2)
-             ,movablePositions: A2($List.map,
-             fromExPos,
-             ex.movablePositions)
-             ,playState: fromExPlayState(ex.playState)
-             ,result: fromExGameResult(ex.result)
-             ,turn: fromExPlayer(ex.turn)};
-   };
-   var toExPos = function (pos) {
-      return function () {
-         switch (pos.ctor)
-         {case "InHand": return {_: {}
-                                ,label: "InHand"
-                                ,n: pos._1
-                                ,player: toExPlayer(pos._0)
-                                ,typ: "Pos"
-                                ,x: -1
-                                ,y: -1};
-            case "OnBoard":
-            switch (pos._0.ctor)
-              {case "_Tuple2": return {_: {}
-                                      ,label: "OnBoard"
-                                      ,n: -1
-                                      ,player: {_: {}
-                                               ,label: "Nothing"
-                                               ,typ: "Player"}
-                                      ,typ: "Pos"
-                                      ,x: pos._0._0
-                                      ,y: pos._0._1};}
-              break;}
-         _U.badCase($moduleName,
-         "between lines 33 and 35");
-      }();
-   };
-   var toExCel = function (_v21) {
-      return function () {
-         switch (_v21.ctor)
-         {case "_Tuple3": return {_: {}
-                                 ,effect: toExEffect(_v21._2)
-                                 ,pos: toExPos(_v21._0)
-                                 ,stateAt: toExStateAt(_v21._1)
-                                 ,typ: "Cel"};}
-         _U.badCase($moduleName,
-         "on line 93, column 20 to 96");
-      }();
-   };
-   var toExBoard = $List.map(toExCel);
-   var toExGameState = function (gs) {
-      return {_: {}
-             ,board: toExBoard(gs.board)
-             ,clickedPosition: function () {
-                var _v26 = gs.clickedPosition;
-                switch (_v26.ctor)
-                {case "Just":
-                   return $Maybe.Just(toExPos(_v26._0));
-                   case "Nothing":
-                   return $Maybe.Nothing;}
-                _U.badCase($moduleName,
-                "between lines 143 and 146");
-             }()
-             ,clickedStateAt: toExStateAt(gs.clickedStateAt)
-             ,mochiGoma1: toExKomaDai(gs.mochiGoma1)
-             ,mochiGoma2: toExKomaDai(gs.mochiGoma2)
-             ,movablePositions: A2($List.map,
-             toExPos,
-             gs.movablePositions)
-             ,playState: toExPlayState(gs.playState)
-             ,result: toExGameResult(gs.result)
-             ,turn: toExPlayer(gs.turn)
-             ,typ: "GameState"};
-   };
-   var ExGameState = function (a) {
-      return function (b) {
-         return function (c) {
-            return function (d) {
-               return function (e) {
-                  return function (f) {
-                     return function (g) {
-                        return function (h) {
-                           return function (i) {
-                              return function (j) {
-                                 return {_: {}
-                                        ,board: b
-                                        ,clickedPosition: g
-                                        ,clickedStateAt: f
-                                        ,mochiGoma1: i
-                                        ,mochiGoma2: j
-                                        ,movablePositions: h
-                                        ,playState: d
-                                        ,result: e
-                                        ,turn: c
-                                        ,typ: a};
-                              };
-                           };
-                        };
-                     };
-                  };
-               };
-            };
-         };
-      };
-   };
-   var ExPlayState = F2(function (a,
-   b) {
-      return {_: {}
-             ,label: b
-             ,typ: a};
-   });
-   var ExGameResult = F3(function (a,
-   b,
-   c) {
-      return {_: {}
-             ,label: b
-             ,player: c
-             ,typ: a};
-   });
-   var ExCel = F4(function (a,
-   b,
-   c,
-   d) {
-      return {_: {}
-             ,effect: d
-             ,pos: b
-             ,stateAt: c
-             ,typ: a};
-   });
-   var ExEffect = F2(function (a,
-   b) {
-      return {_: {}
-             ,label: b
-             ,typ: a};
-   });
-   var ExKomaType = F2(function (a,
-   b) {
-      return {_: {}
-             ,label: b
-             ,typ: a};
-   });
-   var ExPlayer = F2(function (a,
-   b) {
-      return {_: {}
-             ,label: b
-             ,typ: a};
-   });
-   var ExPos = F6(function (a,
-   b,
-   c,
-   d,
-   e,
-   f) {
-      return {_: {}
-             ,label: b
-             ,n: f
-             ,player: e
-             ,typ: a
-             ,x: c
-             ,y: d};
-   });
-   _elm.Port.values = {_op: _op
-                      ,ExPos: ExPos
-                      ,ExPlayer: ExPlayer
-                      ,ExKomaType: ExKomaType
-                      ,ExEffect: ExEffect
-                      ,ExCel: ExCel
-                      ,ExGameResult: ExGameResult
-                      ,ExPlayState: ExPlayState
-                      ,ExGameState: ExGameState
-                      ,toExPos: toExPos
-                      ,fromExPos: fromExPos
-                      ,toExPlayer: toExPlayer
-                      ,fromExPlayer: fromExPlayer
-                      ,toExKomaType: toExKomaType
-                      ,fromExKomaType: fromExKomaType
-                      ,toExStateAt: toExStateAt
-                      ,fromExStateAt: fromExStateAt
-                      ,toExEffect: toExEffect
-                      ,fromExEffect: fromExEffect
-                      ,toExCel: toExCel
-                      ,fromExCel: fromExCel
-                      ,toExBoard: toExBoard
-                      ,fromExBoard: fromExBoard
-                      ,toExKomaDai: toExKomaDai
-                      ,fromExKomaDai: fromExKomaDai
-                      ,toExGameResult: toExGameResult
-                      ,fromExGameResult: fromExGameResult
-                      ,toExPlayState: toExPlayState
-                      ,fromExPlayState: fromExPlayState
-                      ,toExGameState: toExGameState
-                      ,fromExGameState: fromExGameState};
-   return _elm.Port.values;
-};
 Elm.Result = Elm.Result || {};
 Elm.Result.make = function (_elm) {
    "use strict";
@@ -9687,83 +10025,4 @@ Elm.Transform2D.make = function (_elm) {
                              ,scaleX: scaleX
                              ,scaleY: scaleY};
    return _elm.Transform2D.values;
-};
-Elm.Type = Elm.Type || {};
-Elm.Type.make = function (_elm) {
-   "use strict";
-   _elm.Type = _elm.Type || {};
-   if (_elm.Type.values)
-   return _elm.Type.values;
-   var _op = {},
-   _N = Elm.Native,
-   _U = _N.Utils.make(_elm),
-   _L = _N.List.make(_elm),
-   _P = _N.Ports.make(_elm),
-   $moduleName = "Type",
-   $Array = Elm.Array.make(_elm),
-   $Maybe = Elm.Maybe.make(_elm);
-   var GameState = F9(function (a,
-   b,
-   c,
-   d,
-   e,
-   f,
-   g,
-   h,
-   i) {
-      return {_: {}
-             ,board: a
-             ,clickedPosition: f
-             ,clickedStateAt: e
-             ,mochiGoma1: h
-             ,mochiGoma2: i
-             ,movablePositions: g
-             ,playState: c
-             ,result: d
-             ,turn: b};
-   });
-   var Selected = {ctor: "Selected"};
-   var Neutral = {ctor: "Neutral"};
-   var Draw = {ctor: "Draw"};
-   var Win = function (a) {
-      return {ctor: "Win",_0: a};
-   };
-   var Unfinished = {ctor: "Unfinished"};
-   var Transparent = {ctor: "Transparent"};
-   var NoEffect = {ctor: "NoEffect"};
-   var Chicken = {ctor: "Chicken"};
-   var Chick = {ctor: "Chick"};
-   var Giraffe = {ctor: "Giraffe"};
-   var Elephant = {ctor: "Elephant"};
-   var Lion = {ctor: "Lion"};
-   var P2 = {ctor: "P2"};
-   var P1 = {ctor: "P1"};
-   var InHand = F2(function (a,b) {
-      return {ctor: "InHand"
-             ,_0: a
-             ,_1: b};
-   });
-   var OnBoard = function (a) {
-      return {ctor: "OnBoard"
-             ,_0: a};
-   };
-   _elm.Type.values = {_op: _op
-                      ,OnBoard: OnBoard
-                      ,InHand: InHand
-                      ,P1: P1
-                      ,P2: P2
-                      ,Lion: Lion
-                      ,Elephant: Elephant
-                      ,Giraffe: Giraffe
-                      ,Chick: Chick
-                      ,Chicken: Chicken
-                      ,NoEffect: NoEffect
-                      ,Transparent: Transparent
-                      ,Unfinished: Unfinished
-                      ,Win: Win
-                      ,Draw: Draw
-                      ,Neutral: Neutral
-                      ,Selected: Selected
-                      ,GameState: GameState};
-   return _elm.Type.values;
 };
