@@ -2,7 +2,7 @@ import Graphics.Element (..)
 import Graphics.Collage (rotate, collage, toForm)
 import Color (..)
 import List as L
-import Graphics.Input (clickable)
+import Graphics.Input (clickable, customButton)
 import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
 import Keyboard (space)
 import Array as A
@@ -85,11 +85,16 @@ main =
           let (w,h) = sizeOf e
           in if reverseFlg then collage w h [e |> toForm |> (rotate (degrees 180))] else e
 
+      rvBtn : Bool -> Element
+      rvBtn isReverse =
+          let btn = T.plainText <| if isReverse then "　▼先手　△後手" else "　▲先手　▽後手"
+          in customButton (send reverseBtnMessage True) btn btn btn
+
       -- GameStateの更新を受け取って描画する
       view : Bool -> GameState -> Element
       view isReverse gs = flow down [
                       turnMessage gs
-                    , T.plainText <| if isReverse then "　▼先手　△後手" else "　▲先手　▽後手"
+                    , rvBtn isReverse
                     , flow down [
                         komaDaiToElement P2 gs.mochiGoma2
                       , spacer 10 10
@@ -102,7 +107,10 @@ main =
    in view <~ reverseFlg ~ gameState (fromExPos <~ inClickedPos)
 
 reverseFlg : Signal Bool
-reverseFlg = foldp (\s acc -> if s then not acc else acc) False space
+reverseFlg = foldp (\s acc -> if s then not acc else acc) False (subscribe reverseBtnMessage)
+
+reverseBtnMessage : Channel Bool
+reverseBtnMessage = channel False
 
 
 port exClickedPos : Signal ExPos
