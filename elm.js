@@ -1806,7 +1806,7 @@ Elm.DoubutsuShogi.make = function (_elm) {
             case "Nothing":
             return $Debug.crash(errStr);}
          _U.badCase($moduleName,
-         "between lines 224 and 226");
+         "between lines 236 and 238");
       }();
    });
    var updateBoard = F2(function (b,
@@ -1825,7 +1825,7 @@ Elm.DoubutsuShogi.make = function (_elm) {
                                  ,_2: _v2._1._1};}
                        break;}
                   _U.badCase($moduleName,
-                  "on line 219, column 62 to 75");
+                  "on line 231, column 62 to 75");
                }();
             })($Dict.toList(d));
          };
@@ -1834,7 +1834,7 @@ Elm.DoubutsuShogi.make = function (_elm) {
                switch (p.ctor)
                {case "OnBoard": return p._0;}
                _U.badCase($moduleName,
-               "between lines 208 and 210");
+               "between lines 220 and 222");
             }();
          };
          var onBoardFilter = $List.filter(function (_v10) {
@@ -1846,10 +1846,10 @@ Elm.DoubutsuShogi.make = function (_elm) {
                        {case "InHand": return false;
                           case "OnBoard": return true;}
                        _U.badCase($moduleName,
-                       "between lines 204 and 206");
+                       "between lines 216 and 218");
                     }();}
                _U.badCase($moduleName,
-               "between lines 204 and 206");
+               "between lines 216 and 218");
             }();
          });
          var boardToDict = function (b) {
@@ -1863,7 +1863,7 @@ Elm.DoubutsuShogi.make = function (_elm) {
                                  ,_0: _v19._1
                                  ,_1: _v19._2}};}
                   _U.badCase($moduleName,
-                  "on line 216, column 62 to 74");
+                  "on line 228, column 62 to 74");
                }();
             })(onBoardFilter(b)));
          };
@@ -1887,7 +1887,7 @@ Elm.DoubutsuShogi.make = function (_elm) {
                        return b;
                     }();}
                _U.badCase($moduleName,
-               "between lines 211 and 215");
+               "between lines 223 and 227");
             }();
          });
          return A3($List.foldl,
@@ -1902,7 +1902,7 @@ Elm.DoubutsuShogi.make = function (_elm) {
                     ,_1: _v33._1
                     ,_2: _v33._2});}
                _U.badCase($moduleName,
-               "on line 221, column 30 to 52");
+               "on line 233, column 30 to 52");
             }();
          }),
          b,
@@ -2542,11 +2542,62 @@ Elm.DoubutsuShogi.make = function (_elm) {
                "between lines 139 and 148");
             }();
          });
-         var stAt = function (_v156) {
+         var isWin = function (gs) {
             return function () {
-               switch (_v156.ctor)
+               var isTry = function () {
+                  var _v156 = gs.turn;
+                  switch (_v156.ctor)
+                  {case "P1":
+                     return _U.eq(gs.clickedStateAt,
+                       $Maybe.Just({ctor: "_Tuple2"
+                                   ,_0: $DoubutsuShogi$Type.Lion
+                                   ,_1: $DoubutsuShogi$Type.P1})) && function () {
+                          switch (pos.ctor)
+                          {case "OnBoard":
+                             switch (pos._0.ctor)
+                               {case "_Tuple2":
+                                  switch (pos._0._1)
+                                    {case 0: return true;}
+                                    break;}
+                               break;}
+                          return false;
+                       }();
+                     case "P2":
+                     return _U.eq(gs.clickedStateAt,
+                       $Maybe.Just({ctor: "_Tuple2"
+                                   ,_0: $DoubutsuShogi$Type.Lion
+                                   ,_1: $DoubutsuShogi$Type.P2})) && function () {
+                          var _v161 = A2($Debug.log,
+                          "pos",
+                          pos);
+                          switch (_v161.ctor)
+                          {case "OnBoard":
+                             switch (_v161._0.ctor)
+                               {case "_Tuple2":
+                                  return _U.eq(_v161._0._1,
+                                    boardSize.y - 1);}
+                               break;}
+                          return false;
+                       }();}
+                  _U.badCase($moduleName,
+                  "between lines 169 and 176");
+               }();
+               var isTsumi = _U.eq(A4(getStateAt,
+               gs.board,
+               gs.mochiGoma1,
+               gs.mochiGoma2,
+               pos),
+               $Maybe.Just({ctor: "_Tuple2"
+                           ,_0: $DoubutsuShogi$Type.Lion
+                           ,_1: opponent_}));
+               return isTsumi || isTry;
+            }();
+         };
+         var stAt = function (_v165) {
+            return function () {
+               switch (_v165.ctor)
                {case "_Tuple3":
-                  return _v156._1;}
+                  return _v165._1;}
                _U.badCase($moduleName,
                "on line 125, column 85 to 86");
             }();
@@ -2563,14 +2614,7 @@ Elm.DoubutsuShogi.make = function (_elm) {
          return isFinished ? gs : isMove ? _U.replace([["playState"
                                                        ,$DoubutsuShogi$Type.Neutral]
                                                       ,["result"
-                                                       ,_U.eq(A4(getStateAt,
-                                                       gs.board,
-                                                       gs.mochiGoma1,
-                                                       gs.mochiGoma2,
-                                                       pos),
-                                                       $Maybe.Just({ctor: "_Tuple2"
-                                                                   ,_0: $DoubutsuShogi$Type.Lion
-                                                                   ,_1: opponent_})) ? $DoubutsuShogi$Type.Win(gs.turn) : $DoubutsuShogi$Type.Unfinished]
+                                                       ,isWin(gs) ? $DoubutsuShogi$Type.Win(gs.turn) : $DoubutsuShogi$Type.Unfinished]
                                                       ,["board"
                                                        ,resetEffect(A2(updateBoard,
                                                        gs.board,
@@ -2582,10 +2626,10 @@ Elm.DoubutsuShogi.make = function (_elm) {
                                                                      ,_2: $DoubutsuShogi$Type.NoEffect}
                                                                     ,function (cel) {
                                                                        return function () {
-                                                                          var _v161 = gs.clickedPosition;
-                                                                          switch (_v161.ctor)
+                                                                          var _v170 = gs.clickedPosition;
+                                                                          switch (_v170.ctor)
                                                                           {case "Just":
-                                                                             switch (_v161._0.ctor)
+                                                                             switch (_v170._0.ctor)
                                                                                {case "OnBoard":
                                                                                   return nari(cel);}
                                                                                break;}
@@ -4394,7 +4438,6 @@ Elm.Main.make = function (_elm) {
    $Graphics$Collage = Elm.Graphics.Collage.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Graphics$Input = Elm.Graphics.Input.make(_elm),
-   $Keyboard = Elm.Keyboard.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Signal = Elm.Signal.make(_elm),
@@ -4433,13 +4476,26 @@ Elm.Main.make = function (_elm) {
    A2($Signal._op["<~"],
    $DoubutsuShogi$Port.toExPos,
    $Signal.subscribe($DoubutsuShogi.clickMessage)));
+   var reverseBtnMessage = $Signal.channel(false);
    var reverseFlg = A3($Signal.foldp,
    F2(function (s,acc) {
       return s ? $Basics.not(acc) : acc;
    }),
    false,
-   $Keyboard.space);
+   $Signal.subscribe(reverseBtnMessage));
    var main = function () {
+      var rvBtn = function (isReverse) {
+         return function () {
+            var btn = $Text.plainText(isReverse ? "　▼先手　△後手" : "　▲先手　▽後手");
+            return A4($Graphics$Input.customButton,
+            A2($Signal.send,
+            reverseBtnMessage,
+            true),
+            btn,
+            btn,
+            btn);
+         }();
+      };
       var reverseBoard = F2(function (reverseFlg,
       e) {
          return function () {
@@ -4624,7 +4680,7 @@ Elm.Main.make = function (_elm) {
          return A2($Graphics$Element.flow,
          $Graphics$Element.down,
          _L.fromArray([turnMessage(gs)
-                      ,$Text.plainText(isReverse ? "　▼先手　△後手" : "　▽後手　▲先手")
+                      ,rvBtn(isReverse)
                       ,reverseBoard(isReverse)(A2($Graphics$Element.flow,
                       $Graphics$Element.down,
                       _L.fromArray([A2(komaDaiToElement,
@@ -4651,7 +4707,8 @@ Elm.Main.make = function (_elm) {
    }();
    _elm.Main.values = {_op: _op
                       ,main: main
-                      ,reverseFlg: reverseFlg};
+                      ,reverseFlg: reverseFlg
+                      ,reverseBtnMessage: reverseBtnMessage};
    return _elm.Main.values;
 };
 Elm.Maybe = Elm.Maybe || {};
