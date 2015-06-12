@@ -1,9 +1,9 @@
 module DoubutsuShogi.Port where
 
-import Array as A
-import Array (Array)
-import List as L
-import DoubutsuShogi.Type (..)
+import Array as A exposing (..)
+import Array exposing (Array)
+import List as L exposing (..)
+import DoubutsuShogi.Type exposing (..)
 import Debug
 
 type alias ExPos = {typ : String, label : String, x : Int, y : Int, player : ExPlayer, n : Int}

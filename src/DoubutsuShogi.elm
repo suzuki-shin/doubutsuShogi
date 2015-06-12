@@ -1,20 +1,20 @@
 module DoubutsuShogi where
 
-import List as L
-import List ((::))
-import Dict as D
-import Array as A
-import Text as T
+import List as L exposing (..)
+import List exposing ((::))
+import Dict as D exposing (..)
+import Array as A exposing (..)
+import Text as T exposing (..)
 import Maybe
 import Debug
-import Graphics.Element (..)
-import Graphics.Collage as GC
-import Color (..)
-import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
+import Graphics.Element exposing (..)
+import Graphics.Collage as GC exposing (..)
+import Color exposing (..)
+import Signal exposing (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
 
-import DoubutsuShogi.Type as Type
-import DoubutsuShogi.Type (..)
-import DoubutsuShogi.Port (..)
+import DoubutsuShogi.Type as Type exposing (..)
+import DoubutsuShogi.Type exposing (..)
+import DoubutsuShogi.Port exposing (..)
 
 show a = case a of
            P1 -> "先手"

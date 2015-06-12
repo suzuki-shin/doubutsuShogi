@@ -1,18 +1,18 @@
-import Graphics.Element (..)
-import Graphics.Collage (rotate, collage, toForm)
-import Color (..)
-import List as L
-import Graphics.Input (clickable, customButton)
-import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
-import Keyboard (space)
-import Array as A
-import Text as T
+import Graphics.Element exposing (..)
+import Graphics.Collage exposing (rotate, collage, toForm)
+import Color exposing (..)
+import List as L exposing (..)
+import Graphics.Input exposing (clickable, customButton)
+import Signal exposing (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
+import Keyboard exposing (space)
+import Array as A exposing (..)
+import Text as T exposing (..)
 import Debug
 
-import DoubutsuShogi.Type as Type
-import DoubutsuShogi.Type (..)
-import DoubutsuShogi.Port (..)
-import DoubutsuShogi (..)
+import DoubutsuShogi.Type as Type exposing (..)
+import DoubutsuShogi.Type exposing (..)
+import DoubutsuShogi.Port exposing (..)
+import DoubutsuShogi exposing (..)
 
 main =
   let
