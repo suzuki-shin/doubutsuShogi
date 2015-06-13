@@ -10,7 +10,8 @@ import Debug
 import Graphics.Element exposing (..)
 import Graphics.Collage as GC exposing (..)
 import Color exposing (..)
-import Signal exposing (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
+import Signal exposing (Signal, send, (<~), (~), foldp, merge, Mailbox, mailbox)
+import Task exposing (Task, succeed, fail)
 
 import DoubutsuShogi.Type as Type exposing (..)
 import DoubutsuShogi.Type exposing (..)
@@ -39,8 +40,8 @@ initBoard = [
   , (OnBoard (2,3), Just (Giraffe, P1), NoEffect)
   ]
 
-clickMessage : Channel Type.Pos
-clickMessage = channel <| OnBoard (0,0)
+clickMessage : Mailbox Type.Pos
+clickMessage = mailbox <| OnBoard (0,0)
 
 -- 指定したマスの情報を返す
 getAt : Board -> KomaDai -> KomaDai -> Type.Pos -> Cel
