@@ -1,20 +1,21 @@
 module DoubutsuShogi where
 
-import List as L
-import List ((::))
-import Dict as D
-import Array as A
-import Text as T
+import List as L exposing (..)
+import List exposing ((::))
+import Dict as D exposing (..)
+import Array as A exposing (..)
+import Text as T exposing (..)
 import Maybe
 import Debug
-import Graphics.Element (..)
-import Graphics.Collage as GC
-import Color (..)
-import Signal (Signal, Channel, send, channel, subscribe, (<~), (~), foldp, merge)
+import Graphics.Element exposing (..)
+import Graphics.Collage as GC exposing (..)
+import Color exposing (..)
+import Signal exposing (Signal, send, (<~), (~), foldp, merge, Mailbox, mailbox)
+import Task exposing (Task, succeed, fail)
 
-import DoubutsuShogi.Type as Type
-import DoubutsuShogi.Type (..)
-import DoubutsuShogi.Port (..)
+import DoubutsuShogi.Type as Type exposing (..)
+import DoubutsuShogi.Type exposing (..)
+import DoubutsuShogi.Port exposing (..)
 
 show a = case a of
            P1 -> "先手"
@@ -39,8 +40,8 @@ initBoard = [
   , (OnBoard (2,3), Just (Giraffe, P1), NoEffect)
   ]
 
-clickMessage : Channel Type.Pos
-clickMessage = channel <| OnBoard (0,0)
+clickMessage : Mailbox Type.Pos
+clickMessage = mailbox <| OnBoard (0,0)
 
 -- 指定したマスの情報を返す
 getAt : Board -> KomaDai -> KomaDai -> Type.Pos -> Cel

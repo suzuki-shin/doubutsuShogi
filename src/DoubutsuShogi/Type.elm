@@ -1,6 +1,6 @@
 module DoubutsuShogi.Type where
 
-import Array (Array)
+import Array exposing (Array)
 
 type Pos = OnBoard (Int,Int) | InHand Player Int
 type Player = P1 | P2
